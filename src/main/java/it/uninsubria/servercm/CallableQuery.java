@@ -10,10 +10,12 @@ import it.uninsubria.datamodel.parametroClimatico.NotaParametro;
 import it.uninsubria.datamodel.parametroClimatico.ParametroClimatico;
 import it.uninsubria.request.Request;
 import it.uninsubria.response.Response;
+import it.uninsubria.update.Update;
 import it.uninsubria.util.IDGenerator;
 import javafx.util.Pair;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +79,9 @@ public class CallableQuery implements Callable<Response> {
                     return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
                 }else return insertOperatore(request);
             }
+            case requestUpdate -> {
+                return requestUpdate(request);
+            }
             case insert -> {
                 switch(request.getTable()){
                     case AREA_INTERESSE -> {
@@ -114,6 +119,25 @@ public class CallableQuery implements Callable<Response> {
             }
         }
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
+    }
+
+    private Response requestUpdate(Request request){
+        String query = "select * from updates_table";
+        List<Update> updates = new LinkedList<Update>();
+        try(PreparedStatement stat = conn.prepareStatement(query)){
+            ResultSet rSet = stat.executeQuery();
+            while(rSet.next()){
+                ServerInterface.Tables table = ServerInterface.Tables.valueOf(
+                        rSet.getString("table_name"));
+                String currentVersion = rSet.getString("current_version");
+                LocalDateTime lastModified = LocalDateTime.parse(rSet.getString("last_modified"));
+                updates.add(new Update(table, currentVersion, lastModified));
+            }
+        }catch(SQLException sqle){
+            sqle.printStackTrace();
+            return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, ServerInterface.Tables.UPDATE, null);
+        }
+        return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.List, ServerInterface.Tables.UPDATE, updates);
     }
 
     public ResultSet prepAndExecuteStatement(String query, String arg) throws SQLException {

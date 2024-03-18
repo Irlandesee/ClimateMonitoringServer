@@ -1,7 +1,11 @@
-package it.uninsubria.servercm;
+package it.uninsubria.servercm.requestHandler;
+import it.uninsubria.factories.RequestFactory;
 import it.uninsubria.request.Request;
 import it.uninsubria.response.Response;
+import it.uninsubria.servercm.CallableQuery;
+import it.uninsubria.servercm.ServerInterface;
 
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.io.IOException;
@@ -12,7 +16,7 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class ServerSlave implements Runnable{
+public class ServRequestSlave implements Runnable{
 
     private int slaveId;
     private Socket sock;
@@ -20,14 +24,14 @@ public class ServerSlave implements Runnable{
     private ObjectOutputStream outStream;
     private Properties props;
     private final ExecutorService executorService;
-    private final int MAX_NUMBER_OF_THREADS = 5;
-    public ServerSlave(Socket sock, int slaveId, Properties props){
-        //executorService = Executors.newFixedThreadPool(MAX_NUMBER_OF_THREADS);
+    public ServRequestSlave(Socket sock, int slaveId, Properties props){
         executorService = Executors.newSingleThreadExecutor();
         this.sock = sock;
         this.slaveId = slaveId;
         this.props = props;
     }
+
+    public Socket getSocket(){return this.sock;}
 
     public void run(){
         String clientId = "";
@@ -59,6 +63,27 @@ public class ServerSlave implements Runnable{
                         number += 1;
                         System.out.printf("Slave %d sending: %d\n", slaveId, number);
                         outStream.writeObject(number);
+                    }
+                    case ServerInterface.LOGIN -> {
+                        Request loginRequest = (Request) inStream.readObject();
+                        CallableQuery callableQuery = new CallableQuery(loginRequest, props);
+                        Future<Response> futureResponse = executorService.submit(callableQuery);
+                        try{
+                            Response loginResponse = futureResponse.get();
+                            if(loginResponse.getResponseType() == ServerInterface.ResponseType.loginKo){
+                                outStream.writeObject(loginResponse);
+                            }else{
+                                outStream.writeObject(loginResponse);
+                                Map<String, String> params = loginRequest.getParams();
+                                String userId = params.get(RequestFactory.userKey);
+                                String password = params.get(RequestFactory.passwordKey);
+                                this.props = new Properties();
+                                props.setProperty("user", userId);
+                                props.setProperty("password", password);
+                            }
+                        }catch(InterruptedException | ExecutionException e){
+                            e.printStackTrace();
+                        }
                     }
                     case ServerInterface.QUIT -> {
                         System.out.printf("Client %s has disconnected, Slave %d terminating\n", clientId, slaveId);
