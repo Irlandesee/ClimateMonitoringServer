@@ -67,10 +67,15 @@ public class CallableQuery implements Callable<Response> {
                 }else return executeLogin(request);
 
             }
-            case executeUpdateAi -> {
+            case update -> {
                 if(request.getParams().size() < ServerInterface.executeUpdateParamsLength){
                     return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
-                }else return executeUpdateAi(request);
+                }else return executeUpdate(request);
+            }
+            case delete -> {
+                if(request.getParams().size() < ServerInterface.executeDeleteParamsLength){
+                    return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
+                }else return executeDelete(request);
             }
             case executeSignUp -> {
                 if(request.getParams().size() < ServerInterface.executeSignUpParamsLength){
@@ -640,20 +645,99 @@ public class CallableQuery implements Callable<Response> {
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, req.getTable(), null);
     }
 
+    public Response executeUpdate(Request request){
+        switch(request.getTable()){
+            case AREA_INTERESSE -> {
+                return executeUpdateAi(request);
+            }
+            case CENTRO_MONITORAGGIO -> {
+                return executeUpdateCm(request);
+            }
+            case PARAM_CLIMATICO -> {
+                return executeUpdatePc(request);
+            }
+            case NOTA_PARAM_CLIMATICO -> {
+                return executeUpdateNpc(request);
+            }
+            case CITY -> {
+                return executeUpdateCity(request);
+            }
+            case OPERATORE -> {
+                return executeUpdateOp(request);
+            }
+            default -> {
+                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
+            }
+        }
+    }
+
     public Response executeUpdateAi(Request request){
         String areaId  = request.getParams().get(RequestFactory.areaIdKey);
-        String centroId = request.getParams().get(RequestFactory.centroIdKey);
-        String query = "update centro_monitoraggio set aree_interesse_ids = array_append(aree_interesse_ids, '%s') where centroid = '%s'"
-                .formatted(areaId, centroId);
-        try(PreparedStatement stat = conn.prepareStatement(query)){
-            int success = stat.executeUpdate();
-            if(success == 1){
-                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateOk, ServerInterface.Tables.CENTRO_MONITORAGGIO, 1);
-            }
-        }catch(SQLException sqle){
-            sqle.printStackTrace();}
+    }
 
-        return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateKo, ServerInterface.Tables.CENTRO_MONITORAGGIO, -1);
+    public Response executeUpdateCm(Request request){
+
+    }
+
+    public Response executeUpdateCity(Request request){
+
+    }
+
+    public Response executeUpdateNpc(Request request){
+
+    }
+
+    public Response executeUpdateOp(Request request){
+
+    }
+
+    public Response executeUpdatePc(Request request){
+
+    }
+
+    public Response executeDeleteAi(Request request){
+
+    }
+    public Response executeDeleteCm(Request request){
+
+    }
+    public Response executeDeletePc(Request request){
+
+    }
+    public Response executeDeleteNpc(Request request){
+
+    }
+    public Response executeDeleteCity(Request request){
+
+    }
+    public Response executeDeleteOp(Request request){
+
+    }
+
+    public Response executeDelete(Request request){
+        switch(request.getTable()){
+            case AREA_INTERESSE -> {
+                return executeDeleteAi(request);
+            }
+            case CENTRO_MONITORAGGIO -> {
+                return executeDeleteCm(request);
+            }
+            case PARAM_CLIMATICO -> {
+                return executeDeletePc(request);
+            }
+            case NOTA_PARAM_CLIMATICO -> {
+                return executeDeleteNpc(request);
+            }
+            case CITY -> {
+                return executeDeleteCity(request);
+            }
+            case OPERATORE -> {
+                return executeDeleteOp(request);
+            }
+            default -> {
+                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
+            }
+        }
     }
 
     public Response executeLogin(Request request){

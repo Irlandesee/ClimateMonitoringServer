@@ -91,11 +91,17 @@ public class RequestFactory {
                     return new Request(clientId, requestType, table, params);
                 }
             }
-            case executeUpdateAi -> {
+            case delete -> {
+                if(params.keySet().size() < ServerInterface.executeDeleteParamsLength){
+                    throw new MalformedRequestException(paramLengthError);
+                }else{
+                    return new Request(clientId, requestType, table, params);
+                }
+            }
+            case update ->{
                 if(params.keySet().size() < ServerInterface.executeUpdateParamsLength){
                     throw new MalformedRequestException(paramLengthError);
-                }
-                else{
+                }else{
                     return new Request(clientId, requestType, table, params);
                 }
             }
@@ -240,7 +246,7 @@ public class RequestFactory {
                 params.put(RequestFactory.userKey, s[0]);
                 params.put(RequestFactory.passwordKey, s[1]);
             }
-            case executeUpdateAi -> {
+            case update-> {
                 if(s.length < 2) throw new MalformedRequestException(paramLengthError);
                 params.put(areaIdKey, s[0]);
                 params.put(centroIdKey, s[1]);
