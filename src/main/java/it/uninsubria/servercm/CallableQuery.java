@@ -678,50 +678,50 @@ public class CallableQuery implements Callable<Response> {
     public Response executeUpdateAi(Request request){
         Map<String, String> params = request.getParams();
         String areaId  = params.get(RequestFactory.areaIdKey);
-        String fieldToUpdate = params.get(RequestFactory.fieldKey);
+        String columnToUpdate = params.get(RequestFactory.columnKey);
         String value = params.get(RequestFactory.updateValueKey);
         String updateQuery = "update area_interesse set %s = '%s' where areaid = '%s'"
-                .formatted(fieldToUpdate, value, areaId);
+                .formatted(columnToUpdate, value, areaId);
         return executeUpdateQuery(updateQuery);
     }
 
     public Response executeUpdateCm(Request request){
         Map<String, String> params = request.getParams();
         String centroId = params.get(RequestFactory.centroIdKey);
-        String fieldToUpdate = params.get(RequestFactory.fieldKey);
+        String columnToUpdate = params.get(RequestFactory.columnKey);
         String value = params.get(RequestFactory.updateValueKey);
         String updateQuery = "update centro_monitoraggio set %s = '%s' where centroid = '%s'"
-                .formatted(fieldToUpdate, value, centroId);
+                .formatted(columnToUpdate, value, centroId);
         return executeUpdateQuery(updateQuery);
     }
 
     public Response executeUpdateNpc(Request request){
         Map<String, String> params = request.getParams();
         String notaId = params.get(RequestFactory.notaIdKey);
-        String fieldToUpdate = params.get(RequestFactory.fieldKey);
+        String columnToUpdate = params.get(RequestFactory.columnKey);
         String value = params.get(RequestFactory.updateValueKey);
         String updateQuery = "update nota_parametro_climatico set %s = '%s' where notaid = '%s'"
-                .formatted(fieldToUpdate, value, notaId);
+                .formatted(columnToUpdate, value, notaId);
         return executeUpdateQuery(updateQuery);
     }
 
     public Response executeUpdateOp(Request request){
         Map<String, String> params = request.getParams();
         String codiceFiscale = params.get(RequestFactory.codFiscOpKey);
-        String fieldToUpdate = params.get(RequestFactory.fieldKey);
+        String columnToUpdate = params.get(RequestFactory.columnKey);
         String value = params.get(RequestFactory.updateValueKey);
         String updateQuery = "update operatore set %s = '%s' where codice_fiscale = '%s'"
-                .formatted(fieldToUpdate, value, codiceFiscale);
+                .formatted(columnToUpdate, value, codiceFiscale);
         return executeUpdateQuery(updateQuery);
     }
 
     public Response executeUpdatePc(Request request){
         Map<String, String> params = request.getParams();
         String parametroId = params.get(RequestFactory.parameterIdKey);
-        String fieldToUpdate = params.get(RequestFactory.fieldKey);
+        String columnToUpdate = params.get(RequestFactory.columnKey);
         String value = params.get(RequestFactory.updateValueKey);
         String updateQuery = "update parametro_climatico set %s = '%s' where parameterid = '%s'"
-                .formatted(fieldToUpdate, value, parametroId);
+                .formatted(columnToUpdate, value, parametroId);
         return executeUpdateQuery(updateQuery);
     }
 
@@ -736,31 +736,31 @@ public class CallableQuery implements Callable<Response> {
     }
     public Response executeDeleteAi(Request request){
         Map<String, String> params = request.getParams();
-        String areaId = params.get(RequestFactory.areaIdKey);
+        String areaId = params.get(RequestFactory.objectId);
         String deleteQuery = "delete from area_interesse where areaid = '%s'".formatted(areaId);
         return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeleteCm(Request request){
         Map<String, String> params = request.getParams();
-        String centroId = params.get(RequestFactory.centroIdKey);
+        String centroId = params.get(RequestFactory.objectId);
         String deleteQuery = "delete from centro_monitoraggio where centroid = '%s'".formatted(centroId);
         return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeletePc(Request request){
         Map<String, String> params = request.getParams();
-        String parameterId = params.get(RequestFactory.parameterIdKey);
+        String parameterId = params.get(RequestFactory.objectId);
         String deleteQuery = "delete from parametro_climatico where parameterid = '%s'".formatted(parameterId);
         return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeleteNpc(Request request){
         Map<String, String> params = request.getParams();
-        String notaId = params.get(RequestFactory.notaIdKey);
+        String notaId = params.get(RequestFactory.objectId);
         String deleteQuery = "delete from nota_parametro_climatico where notaid = '%s'".formatted(notaId);
         return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeleteOp(Request request){
         Map<String, String> params = request.getParams();
-        String codiceFiscale = params.get(RequestFactory.codFiscOpKey);
+        String codiceFiscale = params.get(RequestFactory.objectId);
         String deleteQuery = "delete from operatore where codice_fiscale = '%s'".formatted(codiceFiscale);
         return executeDeleteQuery(deleteQuery);
     }
