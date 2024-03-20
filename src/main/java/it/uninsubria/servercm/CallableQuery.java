@@ -796,7 +796,9 @@ public class CallableQuery implements Callable<Response> {
             ResultSet rSet = stat.executeQuery();
             if(rSet.next()){
                 Operatore operatore = extractOperatore(rSet);
-                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.loginOk, ServerInterface.Tables.OPERATORE, operatore);
+                Response res = new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.loginOk, ServerInterface.Tables.OPERATORE, operatore);
+                System.out.println(res);
+                return res;
             }
         }catch(SQLException sqle){sqle.printStackTrace();}
 

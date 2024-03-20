@@ -1,7 +1,9 @@
 package it.uninsubria.servercm;
+import it.uninsubria.factories.RequestFactory;
 import it.uninsubria.request.Request;
 import it.uninsubria.response.Response;
 
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.io.IOException;
@@ -59,6 +61,24 @@ public class ServerSlave implements Runnable{
                         number += 1;
                         System.out.printf("Slave %d sending: %d\n", slaveId, number);
                         outStream.writeObject(number);
+                    }
+                    case ServerInterface.LOGIN -> {
+                        Request loginRequest = (Request) inStream.readObject();
+                        CallableQuery callableQuery = new CallableQuery(loginRequest, props);
+                        Future<Response> futureResponse = executorService.submit(callableQuery);
+                        try{
+                            Response loginResponse = futureResponse.get();
+                            if(loginResponse.getResponseType() == ServerInterface.ResponseType.loginOk){
+                                System.out.println("Login ok... setting slave properties to match the user's properties");
+                                Map<String, String> params = loginRequest.getParams();
+                                props.setProperty("user", params.get(RequestFactory.userKey));
+                                props.setProperty("password", params.get(RequestFactory.passwordKey));
+                                System.out.println(props);
+                            }
+                            outStream.writeObject(loginResponse);
+                        }catch(InterruptedException | ExecutionException e){
+                            e.printStackTrace();
+                        }
                     }
                     case ServerInterface.QUIT -> {
                         System.out.printf("Client %s has disconnected, Slave %d terminating\n", clientId, slaveId);
