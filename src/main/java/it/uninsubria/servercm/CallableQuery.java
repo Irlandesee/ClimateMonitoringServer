@@ -659,9 +659,6 @@ public class CallableQuery implements Callable<Response> {
             case NOTA_PARAM_CLIMATICO -> {
                 return executeUpdateNpc(request);
             }
-            case CITY -> {
-                return executeUpdateCity(request);
-            }
             case OPERATORE -> {
                 return executeUpdateOp(request);
             }
@@ -671,47 +668,101 @@ public class CallableQuery implements Callable<Response> {
         }
     }
 
+    private Response executeUpdateQuery(String updateQuery){
+        try(PreparedStatement stat = conn.prepareStatement(updateQuery)){
+            int result = stat.executeUpdate();
+            return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateOk, request.getTable(), result);
+        }catch(SQLException sqle){sqle.printStackTrace();}
+        return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateKo, request.getTable(), null);
+    }
     public Response executeUpdateAi(Request request){
-        String areaId  = request.getParams().get(RequestFactory.areaIdKey);
+        Map<String, String> params = request.getParams();
+        String areaId  = params.get(RequestFactory.areaIdKey);
+        String fieldToUpdate = params.get(RequestFactory.fieldKey);
+        String value = params.get(RequestFactory.updateValueKey);
+        String updateQuery = "update area_interesse set %s = '%s' where areaid = '%s'"
+                .formatted(fieldToUpdate, value, areaId);
+        return executeUpdateQuery(updateQuery);
     }
 
     public Response executeUpdateCm(Request request){
-
-    }
-
-    public Response executeUpdateCity(Request request){
-
+        Map<String, String> params = request.getParams();
+        String centroId = params.get(RequestFactory.centroIdKey);
+        String fieldToUpdate = params.get(RequestFactory.fieldKey);
+        String value = params.get(RequestFactory.updateValueKey);
+        String updateQuery = "update centro_monitoraggio set %s = '%s' where centroid = '%s'"
+                .formatted(fieldToUpdate, value, centroId);
+        return executeUpdateQuery(updateQuery);
     }
 
     public Response executeUpdateNpc(Request request){
-
+        Map<String, String> params = request.getParams();
+        String notaId = params.get(RequestFactory.notaIdKey);
+        String fieldToUpdate = params.get(RequestFactory.fieldKey);
+        String value = params.get(RequestFactory.updateValueKey);
+        String updateQuery = "update nota_parametro_climatico set %s = '%s' where notaid = '%s'"
+                .formatted(fieldToUpdate, value, notaId);
+        return executeUpdateQuery(updateQuery);
     }
 
     public Response executeUpdateOp(Request request){
-
+        Map<String, String> params = request.getParams();
+        String codiceFiscale = params.get(RequestFactory.codFiscOpKey);
+        String fieldToUpdate = params.get(RequestFactory.fieldKey);
+        String value = params.get(RequestFactory.updateValueKey);
+        String updateQuery = "update operatore set %s = '%s' where codice_fiscale = '%s'"
+                .formatted(fieldToUpdate, value, codiceFiscale);
+        return executeUpdateQuery(updateQuery);
     }
 
     public Response executeUpdatePc(Request request){
-
+        Map<String, String> params = request.getParams();
+        String parametroId = params.get(RequestFactory.parameterIdKey);
+        String fieldToUpdate = params.get(RequestFactory.fieldKey);
+        String value = params.get(RequestFactory.updateValueKey);
+        String updateQuery = "update parametro_climatico set %s = '%s' where parameterid = '%s'"
+                .formatted(fieldToUpdate, value, parametroId);
+        return executeUpdateQuery(updateQuery);
     }
 
+    private Response executeDeleteQuery(String deleteQuery){
+        try(PreparedStatement stat = conn.prepareStatement(deleteQuery)){
+            int result = stat.executeUpdate();
+            return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.deleteOk, request.getTable(), result);
+        }catch(SQLException sqle){
+            sqle.printStackTrace();
+        }
+        return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.deleteKo, request.getTable(), null);
+    }
     public Response executeDeleteAi(Request request){
-
+        Map<String, String> params = request.getParams();
+        String areaId = params.get(RequestFactory.areaIdKey);
+        String deleteQuery = "delete from area_interesse where areaid = '%s'".formatted(areaId);
+        return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeleteCm(Request request){
-
+        Map<String, String> params = request.getParams();
+        String centroId = params.get(RequestFactory.centroIdKey);
+        String deleteQuery = "delete from centro_monitoraggio where centroid = '%s'".formatted(centroId);
+        return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeletePc(Request request){
-
+        Map<String, String> params = request.getParams();
+        String parameterId = params.get(RequestFactory.parameterIdKey);
+        String deleteQuery = "delete from parametro_climatico where parameterid = '%s'".formatted(parameterId);
+        return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeleteNpc(Request request){
-
-    }
-    public Response executeDeleteCity(Request request){
-
+        Map<String, String> params = request.getParams();
+        String notaId = params.get(RequestFactory.notaIdKey);
+        String deleteQuery = "delete from nota_parametro_climatico where notaid = '%s'".formatted(notaId);
+        return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeleteOp(Request request){
-
+        Map<String, String> params = request.getParams();
+        String codiceFiscale = params.get(RequestFactory.codFiscOpKey);
+        String deleteQuery = "delete from operatore where codice_fiscale = '%s'".formatted(codiceFiscale);
+        return executeDeleteQuery(deleteQuery);
     }
 
     public Response executeDelete(Request request){
@@ -727,9 +778,6 @@ public class CallableQuery implements Callable<Response> {
             }
             case NOTA_PARAM_CLIMATICO -> {
                 return executeDeleteNpc(request);
-            }
-            case CITY -> {
-                return executeDeleteCity(request);
             }
             case OPERATORE -> {
                 return executeDeleteOp(request);

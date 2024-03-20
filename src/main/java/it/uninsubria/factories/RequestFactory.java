@@ -14,6 +14,7 @@ public class RequestFactory {
     public static final String condKey = "cond";
     public static final String fieldKey = "field";
     public static final String objectKey = "object";
+    public static final String updateValueKey = "updateValue";
     public static final String joinKey = "joinTable";
     public static final String userKey = "user";
     public static final String passwordKey = "password";
