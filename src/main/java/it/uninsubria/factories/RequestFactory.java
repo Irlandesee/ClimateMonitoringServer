@@ -253,7 +253,7 @@ public class RequestFactory {
             case executeUpdate -> {
                 if(s.length < ServerInterface.executeUpdateParamsLength) throw new MalformedRequestException(paramLengthError);
                 params.put(RequestFactory.columnToUpdateKey, s[0]);
-                params.put(RequestFactory.fieldKey, s[1]);
+                params.put(RequestFactory.updateValueKey, s[1]);
                 params.put(RequestFactory.objectIdKey, s[2]);
             }
             case executeDelete -> {

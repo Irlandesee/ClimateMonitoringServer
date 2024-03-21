@@ -677,9 +677,9 @@ public class CallableQuery implements Callable<Response> {
     }
     public Response executeUpdateAi(Request request){
         Map<String, String> params = request.getParams();
-        String areaId  = params.get(RequestFactory.areaIdKey);
-        String columnToUpdate = params.get(RequestFactory.columnKey);
+        String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
         String value = params.get(RequestFactory.updateValueKey);
+        String areaId  = params.get(RequestFactory.objectIdKey);
         String updateQuery = "update area_interesse set %s = '%s' where areaid = '%s'"
                 .formatted(columnToUpdate, value, areaId);
         return executeUpdateQuery(updateQuery);
@@ -687,9 +687,9 @@ public class CallableQuery implements Callable<Response> {
 
     public Response executeUpdateCm(Request request){
         Map<String, String> params = request.getParams();
-        String centroId = params.get(RequestFactory.centroIdKey);
-        String columnToUpdate = params.get(RequestFactory.columnKey);
+        String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
         String value = params.get(RequestFactory.updateValueKey);
+        String centroId = params.get(RequestFactory.objectIdKey);
         String updateQuery = "update centro_monitoraggio set %s = '%s' where centroid = '%s'"
                 .formatted(columnToUpdate, value, centroId);
         return executeUpdateQuery(updateQuery);
@@ -697,9 +697,9 @@ public class CallableQuery implements Callable<Response> {
 
     public Response executeUpdateNpc(Request request){
         Map<String, String> params = request.getParams();
-        String notaId = params.get(RequestFactory.notaIdKey);
-        String columnToUpdate = params.get(RequestFactory.columnKey);
+        String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
         String value = params.get(RequestFactory.updateValueKey);
+        String notaId = params.get(RequestFactory.objectIdKey);
         String updateQuery = "update nota_parametro_climatico set %s = '%s' where notaid = '%s'"
                 .formatted(columnToUpdate, value, notaId);
         return executeUpdateQuery(updateQuery);
@@ -707,9 +707,9 @@ public class CallableQuery implements Callable<Response> {
 
     public Response executeUpdateOp(Request request){
         Map<String, String> params = request.getParams();
-        String codiceFiscale = params.get(RequestFactory.codFiscOpKey);
-        String columnToUpdate = params.get(RequestFactory.columnKey);
+        String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
         String value = params.get(RequestFactory.updateValueKey);
+        String codiceFiscale = params.get(RequestFactory.objectIdKey);
         String updateQuery = "update operatore set %s = '%s' where codice_fiscale = '%s'"
                 .formatted(columnToUpdate, value, codiceFiscale);
         return executeUpdateQuery(updateQuery);
@@ -717,8 +717,8 @@ public class CallableQuery implements Callable<Response> {
 
     public Response executeUpdatePc(Request request){
         Map<String, String> params = request.getParams();
-        String parametroId = params.get(RequestFactory.parameterIdKey);
-        String columnToUpdate = params.get(RequestFactory.columnKey);
+        String parametroId = params.get(RequestFactory.objectIdKey);
+        String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
         String value = params.get(RequestFactory.updateValueKey);
         String updateQuery = "update parametro_climatico set %s = '%s' where parameterid = '%s'"
                 .formatted(columnToUpdate, value, parametroId);
