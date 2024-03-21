@@ -690,8 +690,14 @@ public class CallableQuery implements Callable<Response> {
         String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
         String value = params.get(RequestFactory.updateValueKey);
         String centroId = params.get(RequestFactory.objectIdKey);
-        String updateQuery = "update centro_monitoraggio set %s = '%s' where centroid = '%s'"
-                .formatted(columnToUpdate, value, centroId);
+        String updateQuery = "";
+        if(columnToUpdate.equals("aree_interesse_ids")){
+            updateQuery = "update centro_monitoraggio set aree_interesse_ids = array_append(aree_interesse_ids, '%s') where centroid = '%s'"
+                    .formatted(value, centroId);
+        }else{
+            updateQuery = "update centro_monitoraggio set %s = '%s' where centroid = '%s'"
+                    .formatted(columnToUpdate, value, centroId);
+        }
         return executeUpdateQuery(updateQuery);
     }
 
