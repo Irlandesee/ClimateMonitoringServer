@@ -29,8 +29,8 @@ public interface ServerInterface {
         selectObjJoinWithCond("selectObjectJoinWithCond"),
         executeLogin("executeLogin"),
         insert("insert"),
-        delete("delete"),
-        update("update"),
+        executeDelete("executeDelete"),
+        executeUpdate("executeUpdate"),
         requestSignUp("requestSignUp"),
         executeSignUp("executeSignUp");
         public final String label;
@@ -72,8 +72,8 @@ public interface ServerInterface {
     int insertOpParamsLength = 7;
     int insertAiParamsLength = 5;
     int insertNpcParamsLength = 7;
-    int executeUpdateParamsLength = 2;
-    int executeDeleteParamsLength = 3;
+    int executeUpdateParamsLength = 3;
+    int executeDeleteParamsLength = 1;
 
     //int insertAiParamsLength ;
 

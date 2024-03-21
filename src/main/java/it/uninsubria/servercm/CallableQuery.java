@@ -67,12 +67,12 @@ public class CallableQuery implements Callable<Response> {
                 }else return executeLogin(request);
 
             }
-            case update -> {
+            case executeUpdate -> {
                 if(request.getParams().size() < ServerInterface.executeUpdateParamsLength){
                     return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
                 }else return executeUpdate(request);
             }
-            case delete -> {
+            case executeDelete -> {
                 if(request.getParams().size() < ServerInterface.executeDeleteParamsLength){
                     return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
                 }else return executeDelete(request);
@@ -736,31 +736,31 @@ public class CallableQuery implements Callable<Response> {
     }
     public Response executeDeleteAi(Request request){
         Map<String, String> params = request.getParams();
-        String areaId = params.get(RequestFactory.objectId);
+        String areaId = params.get(RequestFactory.objectIdKey);
         String deleteQuery = "delete from area_interesse where areaid = '%s'".formatted(areaId);
         return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeleteCm(Request request){
         Map<String, String> params = request.getParams();
-        String centroId = params.get(RequestFactory.objectId);
+        String centroId = params.get(RequestFactory.objectIdKey);
         String deleteQuery = "delete from centro_monitoraggio where centroid = '%s'".formatted(centroId);
         return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeletePc(Request request){
         Map<String, String> params = request.getParams();
-        String parameterId = params.get(RequestFactory.objectId);
+        String parameterId = params.get(RequestFactory.objectIdKey);
         String deleteQuery = "delete from parametro_climatico where parameterid = '%s'".formatted(parameterId);
         return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeleteNpc(Request request){
         Map<String, String> params = request.getParams();
-        String notaId = params.get(RequestFactory.objectId);
+        String notaId = params.get(RequestFactory.objectIdKey);
         String deleteQuery = "delete from nota_parametro_climatico where notaid = '%s'".formatted(notaId);
         return executeDeleteQuery(deleteQuery);
     }
     public Response executeDeleteOp(Request request){
         Map<String, String> params = request.getParams();
-        String codiceFiscale = params.get(RequestFactory.objectId);
+        String codiceFiscale = params.get(RequestFactory.objectIdKey);
         String deleteQuery = "delete from operatore where codice_fiscale = '%s'".formatted(codiceFiscale);
         return executeDeleteQuery(deleteQuery);
     }

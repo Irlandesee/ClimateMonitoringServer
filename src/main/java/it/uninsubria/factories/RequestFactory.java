@@ -14,7 +14,8 @@ public class RequestFactory {
     public static final String condKey = "cond";
     public static final String fieldKey = "field";
     public static final String columnKey = "column";
-    public static final String objectId = "objectId";
+    public static final String columnToUpdateKey = "columnToUpdate";
+    public static final String objectIdKey = "objectId";
     public static final String objectKey = "object";
     public static final String updateValueKey = "updateValue";
     public static final String joinKey = "joinTable";
@@ -94,14 +95,14 @@ public class RequestFactory {
                     return new Request(clientId, requestType, table, params);
                 }
             }
-            case delete -> {
+            case executeDelete -> {
                 if(params.keySet().size() < ServerInterface.executeDeleteParamsLength){
                     throw new MalformedRequestException(paramLengthError);
                 }else{
                     return new Request(clientId, requestType, table, params);
                 }
             }
-            case update ->{
+            case executeUpdate ->{
                 if(params.keySet().size() < ServerInterface.executeUpdateParamsLength){
                     throw new MalformedRequestException(paramLengthError);
                 }else{
@@ -216,20 +217,6 @@ public class RequestFactory {
         return params;
     }
 
-    public static Map<String, String> buildUpdateParams(ServerInterface.Tables table, ServerInterface.RequestType requestType, String... s) throws MalformedRequestException{
-        Map<String, String> params = new HashMap<String, String>();
-        params.put(columnKey, s[0]);
-        params.put(updateValueKey, s[1]);
-        switch(table){
-            case AREA_INTERESSE -> params.put(areaIdKey, s[2]);
-            case CENTRO_MONITORAGGIO -> params.put(centroIdKey, s[2]);
-            case PARAM_CLIMATICO -> params.put(parameterIdKey, s[2]);
-            case NOTA_PARAM_CLIMATICO -> params.put(notaIdKey, s[2]);
-            case OPERATORE -> params.put(codFiscOpKey, s[2]);
-            default -> {return null;}
-        }
-        return params;
-    }
     public static Map<String, String> buildParams(ServerInterface.RequestType requestType, String... s) throws MalformedRequestException{
         Map<String, String> params = new HashMap<String, String>();
         switch(requestType){
@@ -263,9 +250,15 @@ public class RequestFactory {
                 params.put(RequestFactory.userKey, s[0]);
                 params.put(RequestFactory.passwordKey, s[1]);
             }
-            case delete -> {
+            case executeUpdate -> {
+                if(s.length < ServerInterface.executeUpdateParamsLength) throw new MalformedRequestException(paramLengthError);
+                params.put(RequestFactory.columnToUpdateKey, s[0]);
+                params.put(RequestFactory.fieldKey, s[1]);
+                params.put(RequestFactory.objectIdKey, s[2]);
+            }
+            case executeDelete -> {
                 if(s.length < 1) throw new MalformedRequestException(paramLengthError);
-                params.put(RequestFactory.objectId, s[0]);
+                params.put(RequestFactory.objectIdKey, s[0]);
             }
             case executeSignUp -> {
                 if(s.length < 7) throw new MalformedRequestException(paramLengthError);
