@@ -21,8 +21,8 @@ public class ServerCm {
     private final Properties props;
 
     private final Logger logger;
-    private final String user = "postgres";
-    private final String password = "qwerty";
+    private final String user = "server_slave";
+    private final String password = "serverSlave";
 
     private final ExecutorService clientHandler;
     private final ExecutorService connectionChecker;

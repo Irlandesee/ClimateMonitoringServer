@@ -2,6 +2,7 @@ package it.uninsubria.servercm;
 import it.uninsubria.factories.RequestFactory;
 import it.uninsubria.request.Request;
 import it.uninsubria.response.Response;
+import it.uninsubria.util.IDGenerator;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -23,12 +24,17 @@ public class ServerSlave implements Runnable{
     private Properties props;
     private final ExecutorService executorService;
     private final int MAX_NUMBER_OF_THREADS = 5;
+    private final String defaultSlaveUser;
+    private final String defaultSlavePassword;
     public ServerSlave(Socket sock, int slaveId, Properties props){
         //executorService = Executors.newFixedThreadPool(MAX_NUMBER_OF_THREADS);
         executorService = Executors.newSingleThreadExecutor();
         this.sock = sock;
         this.slaveId = slaveId;
+
         this.props = props;
+        defaultSlaveUser = this.props.getProperty("user");
+        defaultSlavePassword = this.props.getProperty("password");
     }
 
     public void run(){
@@ -79,6 +85,19 @@ public class ServerSlave implements Runnable{
                         }catch(InterruptedException | ExecutionException e){
                             e.printStackTrace();
                         }
+                    }
+                    case ServerInterface.LOGOUT -> {
+                        this.props.setProperty("user", defaultSlaveUser);
+                        this.props.setProperty("password", defaultSlavePassword);
+                        Request logoutRequest = (Request) inStream.readObject();
+                        Response logoutResponse = new Response(
+                                clientId,
+                                logoutRequest.getRequestId(),
+                                IDGenerator.generateID(),
+                                ServerInterface.ResponseType.logoutOk,
+                                null,
+                                null);
+                        outStream.writeObject(logoutResponse);
                     }
                     case ServerInterface.QUIT -> {
                         System.out.printf("Client %s has disconnected, Slave %d terminating\n", clientId, slaveId);

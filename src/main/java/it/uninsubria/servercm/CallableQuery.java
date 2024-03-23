@@ -732,6 +732,7 @@ public class CallableQuery implements Callable<Response> {
     }
 
     private Response executeDeleteQuery(String deleteQuery){
+        System.out.println("Executing request: "+deleteQuery);
         try(PreparedStatement stat = conn.prepareStatement(deleteQuery)){
             int result = stat.executeUpdate();
             return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.deleteOk, request.getTable(), result);

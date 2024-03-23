@@ -88,6 +88,9 @@ public class RequestFactory {
                     return new Request(clientId, requestType, table, params);
                 }
             }
+            case executeLogout -> {
+                return new Request(clientId, requestType, null, null);
+            }
             case executeSignUp -> {
                 if(params.keySet().size() < ServerInterface.executeSignUpParamsLength){
                     throw new MalformedRequestException(paramLengthError);
@@ -235,6 +238,7 @@ public class RequestFactory {
                 if(s.length < ServerInterface.executeDeleteCmParamsLength) throw new MalformedRequestException(paramLengthError);
                 params.put(RequestFactory.objectIdKey, s[0]);
             }
+
             case PARAM_CLIMATICO -> {
                 if(s.length < ServerInterface.executeDeletePcParamsLength) throw new MalformedRequestException(paramLengthError);
                 params.put(RequestFactory.objectIdKey, s[0]);
