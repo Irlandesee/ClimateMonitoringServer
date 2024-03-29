@@ -87,17 +87,20 @@ public class ServerSlave implements Runnable{
                         }
                     }
                     case ServerInterface.LOGOUT -> {
-                        this.props.setProperty("user", defaultSlaveUser);
-                        this.props.setProperty("password", defaultSlavePassword);
                         Request logoutRequest = (Request) inStream.readObject();
-                        Response logoutResponse = new Response(
-                                clientId,
-                                logoutRequest.getRequestId(),
-                                IDGenerator.generateID(),
-                                ServerInterface.ResponseType.logoutOk,
-                                null,
-                                null);
-                        outStream.writeObject(logoutResponse);
+                        if(logoutRequest.getRequestType() == ServerInterface.RequestType.executeLogout){
+                            System.out.printf("Client %s has logged out, setting slave properties to default\n", clientId);
+                            this.props.setProperty("user", defaultSlaveUser);
+                            this.props.setProperty("password", defaultSlavePassword);
+                            Response logoutResponse = new Response(
+                                    clientId,
+                                    logoutRequest.getRequestId(),
+                                    IDGenerator.generateID(),
+                                    ServerInterface.ResponseType.logoutOk,
+                                    null,
+                                    null);
+                            outStream.writeObject(logoutResponse);
+                        }
                     }
                     case ServerInterface.QUIT -> {
                         System.out.printf("Client %s has disconnected, Slave %d terminating\n", clientId, slaveId);

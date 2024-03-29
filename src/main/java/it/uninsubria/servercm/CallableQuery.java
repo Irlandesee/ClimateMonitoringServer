@@ -14,10 +14,7 @@ import it.uninsubria.util.IDGenerator;
 import javafx.util.Pair;
 
 import java.sql.*;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public class CallableQuery implements Callable<Response> {
@@ -749,9 +746,26 @@ public class CallableQuery implements Callable<Response> {
     }
     public Response executeDeleteCm(Request request){
         Map<String, String> params = request.getParams();
-        String centroId = params.get(RequestFactory.objectIdKey);
-        String deleteQuery = "delete from centro_monitoraggio where centroid = '%s'".formatted(centroId);
-        return executeDeleteQuery(deleteQuery);
+        String objectId = params.get(RequestFactory.objectIdKey);
+        if(objectId.equals("aree_interesse_ids")){
+            String areaDaEliminare = params.get(RequestFactory.areaIdKey);
+            String centroId = params.get(RequestFactory.centroIdKey);
+            String query = ("update centro_monitoraggio " +
+                    "set aree_interesse_ids = (select array_remove(aree_interesse_ids, '%s') from centro_monitoraggio where centroid = '%s') " +
+                    "where centroid = '%s'")
+                    .formatted(areaDaEliminare, centroId, centroId);
+            try(PreparedStatement stat = conn.prepareStatement(query)){
+                int result = stat.executeUpdate();
+                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.deleteOk, request.getTable(), result);
+            }catch(SQLException sqle){
+                sqle.printStackTrace();
+                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.deleteKo, request.getTable(), -1);
+            }
+        }else{
+            String centroId = params.get(RequestFactory.objectIdKey);
+            String deleteQuery = "delete from centro_monitoraggio where centroid = '%s'".formatted(centroId);
+            return executeDeleteQuery(deleteQuery);
+        }
     }
     public Response executeDeletePc(Request request){
         Map<String, String> params = request.getParams();
