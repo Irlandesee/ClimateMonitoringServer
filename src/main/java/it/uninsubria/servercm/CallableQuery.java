@@ -840,8 +840,12 @@ public class CallableQuery implements Callable<Response> {
         String email = params.get(RequestFactory.emailOpKey);
         String centroAfferenza = params.get(RequestFactory.centroAfferenzaKey);
 
+        System.out.println("UserId: "+ userId);
+        System.out.println("Email: "+ email);
+
         //create role with the userId
         final String CREATE_USER_ROLE = "create role %s with login password '%s'".formatted(userId, password);
+        System.out.println(CREATE_USER_ROLE);
         try(PreparedStatement createUserRoleStat = conn.prepareStatement(CREATE_USER_ROLE)){
             boolean res = createUserRoleStat.execute();
         }catch(SQLException sqlException){sqlException.printStackTrace();}
@@ -854,7 +858,7 @@ public class CallableQuery implements Callable<Response> {
         }catch(SQLException sqlException){sqlException.printStackTrace();}
 
         String query = "insert into operatore(nome, cognome, codice_fiscale, email, userid, password, centroid) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s')"
-                .formatted(nomeOp, cognomeOp, codFisc, userId, email, password, centroAfferenza);
+                .formatted(nomeOp, cognomeOp, codFisc, email, userId, password, centroAfferenza);
 
         System.err.println(query);
 
