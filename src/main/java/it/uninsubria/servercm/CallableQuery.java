@@ -32,6 +32,11 @@ public class CallableQuery implements Callable<Response> {
             conn = DriverManager.getConnection(ServerCm.dbUrl, props);
         }catch(SQLException sqle){sqle.printStackTrace();}
     }
+    /**
+     * Implementazione del metodo call della classe Callable
+     * In base alla richiesta ricevuta, dirige verso l'esecuzione della query corretta.
+     * @return Response, l'oggetto risposta richiesto dal client
+     */
     @Override
     public Response call() throws Exception{
         Response res = null;
@@ -136,6 +141,12 @@ public class CallableQuery implements Callable<Response> {
         return null;
     }
 
+    /**
+     * Estrae dall'oggetto ResultSet l'oggetto ParametroClimatico da mandare al client
+     * @param rSet
+     * @return
+     * @throws SQLException
+     */
     private ParametroClimatico extractParametroClimatico(ResultSet rSet) throws SQLException{
         ParametroClimatico pc = new ParametroClimatico(
                 rSet.getString("parameterid"),
@@ -152,6 +163,12 @@ public class CallableQuery implements Callable<Response> {
         return pc;
     }
 
+    /**
+     * Estrae dall'oggetto ResultSet l'oggetto AreaInteresse da mandare al client
+     * @param rSet
+     * @return
+     * @throws SQLException
+     */
     private AreaInteresse extractAreaInteresse(ResultSet rSet) throws SQLException{
         AreaInteresse ai = new AreaInteresse(
                 rSet.getString("areaid"),
@@ -162,6 +179,12 @@ public class CallableQuery implements Callable<Response> {
         return ai;
     }
 
+    /**
+     * Estrae dall'oggetto ResultSet l'oggetto NotaParametro da mandare al client
+     * @param rSet
+     * @return
+     * @throws SQLException
+     */
     private NotaParametro extractNota(ResultSet rSet) throws SQLException{
         NotaParametro nota =
                 new NotaParametro(
@@ -176,6 +199,12 @@ public class CallableQuery implements Callable<Response> {
         return nota;
     }
 
+    /**
+     * Estrae dall'oggetto ResultSet l'oggetto CentroMonitoraggio da mandare al client
+     * @param rSet
+     * @return
+     * @throws SQLException
+     */
     private CentroMonitoraggio extractCentroMonitoraggio(ResultSet rSet) throws SQLException{
         CentroMonitoraggio cm = new CentroMonitoraggio(
                 rSet.getString("centroid"),
@@ -190,6 +219,12 @@ public class CallableQuery implements Callable<Response> {
         return cm;
     }
 
+    /**
+     * Estrae dall'oggetto ResultSet l'oggetto City da mandare al client
+     * @param rSet
+     * @return
+     * @throws SQLException
+     */
     private City extractCity(ResultSet rSet) throws SQLException{
         City c = new City(
                 rSet.getString("geoname_id"),
@@ -202,6 +237,12 @@ public class CallableQuery implements Callable<Response> {
         return c;
     }
 
+    /**
+     * Estrae dall'oggetto ResultSet l'oggetto Operatore da mandare al client
+     * @param rSet
+     * @return
+     * @throws SQLException
+     */
     private Operatore extractOperatore(ResultSet rSet) throws SQLException{
         Operatore op = new Operatore(
                 rSet.getString("nome"),
@@ -215,6 +256,12 @@ public class CallableQuery implements Callable<Response> {
         return op;
     }
 
+    /**
+     * Estrae dall'oggetto ResultSet l'oggetto OperatoreAutorizzato da mandare al client
+     * @param rSet
+     * @return
+     * @throws SQLException
+     */
     private OperatoreAutorizzato extractAuthOp(ResultSet rSet) throws SQLException{
         OperatoreAutorizzato authOp = new OperatoreAutorizzato(
                 rSet.getString("codice_fiscale"),
@@ -223,6 +270,11 @@ public class CallableQuery implements Callable<Response> {
         return authOp;
     }
 
+    /**
+     * Dirige l'esecuzione della richiesta selectAll in base alla tabella
+     * @param req
+     * @return
+     */
     private Response selectAll(Request req){
         switch(req.getTable()){
             case CITY -> {
@@ -402,6 +454,11 @@ public class CallableQuery implements Callable<Response> {
         return new Pair<ServerInterface.ResponseType, List<OperatoreAutorizzato>>(ServerInterface.ResponseType.List, opAutorizzati);
     }
 
+    /**
+     * Dirige l'esecuzione della richiesta selectAll con un parametro condizione
+     * @param r
+     * @return
+     */
     private Response selectAllWithCond(Request r){
         Map<String, String> params = r.getParams();
         System.out.println("executing request" + r);
@@ -439,6 +496,7 @@ public class CallableQuery implements Callable<Response> {
             }
         }
     }
+
     private Pair<ServerInterface.ResponseType, String> getResponseResult(String oggetto, String query) {
         //System.out.println(query);
         String res = getQueryResult(query, oggetto);
@@ -481,6 +539,12 @@ public class CallableQuery implements Callable<Response> {
         return getResponseResult(oggetto, query);
     }
 
+    /**
+     * Dirige l'esecuzione della richiesta select con un parametro oggetto e un parametro condizione
+     * parametro oggetto: l'oggetto o colonna da selezionare
+     * @param r
+     * @return
+     */
     private Response selectObjWithCond(Request r){
         Map<String, String> params = r.getParams();
         switch(r.getTable()){
@@ -518,6 +582,15 @@ public class CallableQuery implements Callable<Response> {
         }
     }
 
+    /**
+     * Esegue la query richiesta e ritorna la risposta in formato di lista
+     * @param table
+     * @param oggetto
+     * @param fieldCond
+     * @param cond
+     * @param query
+     * @return
+     */
     private Response getQueryResultList(ServerInterface.Tables table, String oggetto, String fieldCond, String cond, String query) {
         query = query.formatted(oggetto, fieldCond, cond);
         List<String> resultList = new LinkedList<String>();
@@ -595,6 +668,12 @@ public class CallableQuery implements Callable<Response> {
         return getQueryResultList(table, oggetto, fieldCond, cond, query);
     }
 
+    /**
+     * Dirige l'esecuzione della richiesta select su più tabelle, con parametro oggetto e condizione
+     * parametro oggetto: l'oggetto o colonna da selezionare
+     * @param req
+     * @return
+     */
     public Response selectObjectJoinWithCond(Request req){
         Map<String, String> params = req.getParams();
         String joinTable = params.get(RequestFactory.joinKey);
@@ -642,6 +721,11 @@ public class CallableQuery implements Callable<Response> {
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, req.getTable(), null);
     }
 
+    /**
+     * Dirige l'esecuzione della richiesta update in base alla tabella
+     * @param request
+     * @return
+     */
     public Response executeUpdate(Request request){
         switch(request.getTable()){
             case AREA_INTERESSE -> {
@@ -665,6 +749,11 @@ public class CallableQuery implements Callable<Response> {
         }
     }
 
+    /**
+     * Esecuzione della richiesta di update
+     * @param updateQuery
+     * @return
+     */
     private Response executeUpdateQuery(String updateQuery){
         try(PreparedStatement stat = conn.prepareStatement(updateQuery)){
             int result = stat.executeUpdate();
@@ -672,6 +761,12 @@ public class CallableQuery implements Callable<Response> {
         }catch(SQLException sqle){sqle.printStackTrace();}
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateKo, request.getTable(), null);
     }
+
+    /**
+     * Prepara lo statement da eseguire per la richiesta di update sulla tabella AreaInteresse
+     * @param request
+     * @return
+     */
     public Response executeUpdateAi(Request request){
         Map<String, String> params = request.getParams();
         String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
@@ -682,6 +777,11 @@ public class CallableQuery implements Callable<Response> {
         return executeUpdateQuery(updateQuery);
     }
 
+    /**
+     * Prepara lo statement da eseguire per la richiesta di update sulla tabella CentroMonitoraggio
+     * @param request
+     * @return
+     */
     public Response executeUpdateCm(Request request){
         Map<String, String> params = request.getParams();
         String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
@@ -698,6 +798,11 @@ public class CallableQuery implements Callable<Response> {
         return executeUpdateQuery(updateQuery);
     }
 
+    /**
+     * Prepara lo statement da eseguire per la richiesta di update sulla tabella NotaParametroClimatico
+     * @param request
+     * @return
+     */
     public Response executeUpdateNpc(Request request){
         Map<String, String> params = request.getParams();
         String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
@@ -708,6 +813,11 @@ public class CallableQuery implements Callable<Response> {
         return executeUpdateQuery(updateQuery);
     }
 
+    /**
+     * Prepara lo statement da eseguire per la richiesta di update sulla tabella Operatore
+     * @param request
+     * @return
+     */
     public Response executeUpdateOp(Request request){
         Map<String, String> params = request.getParams();
         String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
@@ -718,6 +828,11 @@ public class CallableQuery implements Callable<Response> {
         return executeUpdateQuery(updateQuery);
     }
 
+    /**
+     * Prepara lo statement da eseguire per la richiesta di update sulla tabella ParametroClimatico
+     * @param request
+     * @return
+     */
     public Response executeUpdatePc(Request request){
         Map<String, String> params = request.getParams();
         String parametroId = params.get(RequestFactory.objectIdKey);
@@ -728,6 +843,11 @@ public class CallableQuery implements Callable<Response> {
         return executeUpdateQuery(updateQuery);
     }
 
+    /**
+     * Esecuzione della richiesta delete
+     * @param deleteQuery
+     * @return
+     */
     private Response executeDeleteQuery(String deleteQuery){
         System.out.println("Executing request: "+deleteQuery);
         try(PreparedStatement stat = conn.prepareStatement(deleteQuery)){
@@ -738,12 +858,26 @@ public class CallableQuery implements Callable<Response> {
         }
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.deleteKo, request.getTable(), null);
     }
+
+    /**
+     * Prepara lo statement da eseguire per la richiesta di delete sulla tabella AreaInteresse
+     * @param request
+     * @return
+     */
     public Response executeDeleteAi(Request request){
         Map<String, String> params = request.getParams();
         String areaId = params.get(RequestFactory.areaIdKey);
         String deleteQuery = "delete from area_interesse where areaid = '%s'".formatted(areaId);
         return executeDeleteQuery(deleteQuery);
     }
+
+    /**
+     * Prepara lo statement da eseguire per la richiesta di delete sulla tabella CentroMonitoraggio:
+     * eliminazione del centro di monitoraggio, oppure
+     * eliminazione di area associata dal centro di monitoraggio
+     * @param request
+     * @return
+     */
     public Response executeDeleteCm(Request request){
         Map<String, String> params = request.getParams();
         if(params.size() > 1){
@@ -767,6 +901,11 @@ public class CallableQuery implements Callable<Response> {
         }
     }
 
+    /**
+     * Prepara lo statement da eseguire per la richiesta di delete sulla tabella ParametroClimatico
+     * @param request
+     * @return
+     */
     public Response executeDeletePc(Request request){
         Map<String, String> params = request.getParams();
         String parameterId = params.get(RequestFactory.parameterIdKey);
@@ -775,6 +914,11 @@ public class CallableQuery implements Callable<Response> {
         return executeDeleteQuery(deleteQuery);
     }
 
+    /**
+     * Prepara lo statement da eseguire per la richiesta di delete sulla tabella NotaParametroClimatico
+     * @param request
+     * @return
+     */
     public Response executeDeleteNpc(Request request){
         Map<String, String> params = request.getParams();
         String notaId = params.get(RequestFactory.notaIdKey);
@@ -782,6 +926,11 @@ public class CallableQuery implements Callable<Response> {
         return executeDeleteQuery(deleteQuery);
     }
 
+    /**
+     * Prepara lo statement da eseguire per la richiesta di delete sulla tabella Operatore
+     * @param request
+     * @return
+     */
     public Response executeDeleteOp(Request request){
         Map<String, String> params = request.getParams();
         String codiceFiscale = params.get(RequestFactory.codFiscOpKey);
@@ -789,6 +938,11 @@ public class CallableQuery implements Callable<Response> {
         return executeDeleteQuery(deleteQuery);
     }
 
+    /**
+     * Dirige l'esecuzione della richiesta delete
+     * @param request
+     * @return
+     */
     public Response executeDelete(Request request){
         switch(request.getTable()){
             case AREA_INTERESSE -> {
@@ -812,6 +966,11 @@ public class CallableQuery implements Callable<Response> {
         }
     }
 
+    /**
+     * Controlla la presenza nel db di operatori con userid e password contenuti nella richiesta
+     * @param request
+     * @return
+     */
     public Response executeLogin(Request request){
         String userId = request.getParams().get(RequestFactory.userKey);
         String password = request.getParams().get(RequestFactory.passwordKey);
@@ -830,6 +989,11 @@ public class CallableQuery implements Callable<Response> {
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.loginKo, ServerInterface.Tables.OPERATORE, null);
     }
 
+    /**
+     * Inserimento, creazione e grant di permessi per un nuovo operatore
+     * @param request
+     * @return
+     */
     public Response insertOperatore(Request request){
         Map<String, String> params = request.getParams();
         String nomeOp = params.get(RequestFactory.nomeOpKey);
@@ -869,6 +1033,11 @@ public class CallableQuery implements Callable<Response> {
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.insertKo, ServerInterface.Tables.OPERATORE, false);
     }
 
+    /**
+     * Inserimento di un nuovo operatore autorizzato
+     * @param request
+     * @return
+     */
     public Response insertOperatoreAutorizzato(Request request){
         Map<String, String> params = request.getParams();
         String email = params.get(RequestFactory.emailOpKey);
@@ -882,6 +1051,11 @@ public class CallableQuery implements Callable<Response> {
 
     }
 
+    /**
+     * Inserimento di un nuovo centro di monitoraggio
+     * @param request
+     * @return
+     */
     public Response insertCentroMonitoraggio(Request request){
         Map<String, String> params = request.getParams();
         String centroId = IDGenerator.generateID();
@@ -915,7 +1089,11 @@ public class CallableQuery implements Callable<Response> {
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.insertKo, ServerInterface.Tables.CENTRO_MONITORAGGIO, false);
     }
 
-    //Non inserisci notaid
+    /**
+     * Inserimento di un nuovo parametro climatico
+     * @param request
+     * @return
+     */
     public Response insertParametroClimatico(Request request){
         Map<String, String> params = request.getParams();
         String parameterId = params.get(RequestFactory.parameterIdKey);
@@ -933,7 +1111,6 @@ public class CallableQuery implements Callable<Response> {
         String query =
                 "insert into parametro_climatico(parameterid, centroid, areaid, pubdate, notaid, valore_vento, valore_umidita, valore_pressione, valore_temperatura, valore_precipitazioni, valore_alt_ghiacciai, valore_massa_ghiacciai) " +
                         "values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')";
-        //12
         query = query.formatted(parameterId, centroId, areaId, pubDate, notaId, valoreVento, valoreUmidita, valorePressione, valoreTemperatura, valorePrecipitazioni, valoreAltGhiacciai, valoreMassaGhiacciai);
         try(PreparedStatement stat = conn.prepareStatement(query)){
             int res = stat.executeUpdate();
@@ -944,6 +1121,11 @@ public class CallableQuery implements Callable<Response> {
     }
 
 
+    /**
+     * Inserimento di una nuova area interesse
+     * @param request
+     * @return
+     */
     private Response insertAreaInteresse(Request request) {
         Map<String, String> params = request.getParams();
         String areaId = params.get(RequestFactory.areaIdKey);
@@ -953,8 +1135,6 @@ public class CallableQuery implements Callable<Response> {
         String longitudine = params.get(RequestFactory.longitudineKey);
         String query = "insert into area_interesse(areaid, denominazione, stato, latitudine, longitudine) values ('%s', '%s', '%s', '%s', '%s')";
         query = query.formatted(areaId, denominazione, stato, latitudine, longitudine);
-        //Query the database to check if this ai already exists
-
         String checkQuery =
                 String.format("select areaid from area_interesse where denominazione = '%s' and stato = '%s' and latitudine = '%s' and longitudine = '%s'",
                         denominazione, stato, latitudine, longitudine);
@@ -976,6 +1156,11 @@ public class CallableQuery implements Callable<Response> {
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.insertKo, ServerInterface.Tables.AREA_INTERESSE, false);
     }
 
+    /**
+     * Inserimento di una nuova nota
+     * @param request
+     * @return
+     */
     private Response insertNotaParametroClimatico(Request request){
         Map<String, String> params = request.getParams();
         String notaId = params.get(RequestFactory.notaIdKey);

@@ -55,6 +55,15 @@ public class RequestFactory {
     public static final String notaAltGhiacciaiKey = "notaAltGhiacciai";
     public static final String notaMassaGhiacciaiKey = "notaMassaGhiacciai";
 
+    /**
+     * Dirige la creazione di una richiesta
+     * @param clientId nome del client che fa la richiesta
+     * @param requestType tipo di richiesta
+     * @param table la tabella su cui eseguire la query
+     * @param params parametri per la richiesta
+     * @return
+     * @throws MalformedRequestException
+     */
     public static Request buildRequest(String clientId, ServerInterface.RequestType requestType, ServerInterface.Tables table, Map<String, String> params) throws MalformedRequestException{
         switch(requestType){
             case selectAll -> {
@@ -163,6 +172,13 @@ public class RequestFactory {
         throw new MalformedRequestException(undefinedRequestType);
     }
 
+    /**
+     * Dirigge la richiesta di creazione di insert request
+     * @param table tabella in cui inserire i dati
+     * @param s stringa contente i vari parametri da inserire
+     * @return
+     * @throws MalformedRequestException
+     */
     public static Map<String, String> buildInsertParams(ServerInterface.Tables table, String... s) throws MalformedRequestException{
         Map<String, String> params = new HashMap<String, String>();
         switch(table){
@@ -227,6 +243,13 @@ public class RequestFactory {
         return params;
     }
 
+    /**
+     * Dirige la creazione del pacchetto parametri per la richiesta di delete
+     * @param table tabella su cui eseguire la delete
+     * @param s parametri della richiesta
+     * @return
+     * @throws MalformedRequestException
+     */
     public static Map<String, String> buildDeleteParams(ServerInterface.Tables table, String... s) throws MalformedRequestException{
         Map<String, String> params = new HashMap<String, String>();
         switch(table){
@@ -257,6 +280,14 @@ public class RequestFactory {
         return params;
 
     }
+
+    /**
+     * Dirige la creazione del pacchetto parametri
+     * @param requestType tipologia di richiesta
+     * @param s parametri da inserire nel pacchetto
+     * @return
+     * @throws MalformedRequestException
+     */
     public static Map<String, String> buildParams(ServerInterface.RequestType requestType, String... s) throws MalformedRequestException{
         Map<String, String> params = new HashMap<String, String>();
         switch(requestType){

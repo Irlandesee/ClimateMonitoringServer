@@ -37,6 +37,10 @@ public class ServerSlave implements Runnable{
         defaultSlavePassword = this.props.getProperty("password");
     }
 
+    /**
+     * Implementazione del metodo run dell'interfaccia Runnable
+     * Legge, riceve e manda le varie richieste e risposte al client.
+     */
     public void run(){
         String clientId = "";
         boolean runCondition = true;
