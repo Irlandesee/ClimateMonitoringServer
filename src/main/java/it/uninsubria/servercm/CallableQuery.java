@@ -14,10 +14,7 @@ import it.uninsubria.util.IDGenerator;
 import javafx.util.Pair;
 
 import java.sql.*;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public class CallableQuery implements Callable<Response> {
@@ -67,10 +64,15 @@ public class CallableQuery implements Callable<Response> {
                 }else return executeLogin(request);
 
             }
-            case executeUpdateAi -> {
+            case executeUpdate -> {
                 if(request.getParams().size() < ServerInterface.executeUpdateParamsLength){
                     return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
-                }else return executeUpdateAi(request);
+                }else return executeUpdate(request);
+            }
+            case executeDelete -> {
+                if(request.getParams().size() < ServerInterface.executeDeleteParamsLength){
+                    return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
+                }else return executeDelete(request);
             }
             case executeSignUp -> {
                 if(request.getParams().size() < ServerInterface.executeSignUpParamsLength){
@@ -640,20 +642,174 @@ public class CallableQuery implements Callable<Response> {
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, req.getTable(), null);
     }
 
-    public Response executeUpdateAi(Request request){
-        String areaId  = request.getParams().get(RequestFactory.areaIdKey);
-        String centroId = request.getParams().get(RequestFactory.centroIdKey);
-        String query = "update centro_monitoraggio set aree_interesse_ids = array_append(aree_interesse_ids, '%s') where centroid = '%s'"
-                .formatted(areaId, centroId);
-        try(PreparedStatement stat = conn.prepareStatement(query)){
-            int success = stat.executeUpdate();
-            if(success == 1){
-                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateOk, ServerInterface.Tables.CENTRO_MONITORAGGIO, 1);
+    public Response executeUpdate(Request request){
+        switch(request.getTable()){
+            case AREA_INTERESSE -> {
+                return executeUpdateAi(request);
             }
-        }catch(SQLException sqle){
-            sqle.printStackTrace();}
+            case CENTRO_MONITORAGGIO -> {
+                return executeUpdateCm(request);
+            }
+            case PARAM_CLIMATICO -> {
+                return executeUpdatePc(request);
+            }
+            case NOTA_PARAM_CLIMATICO -> {
+                return executeUpdateNpc(request);
+            }
+            case OPERATORE -> {
+                return executeUpdateOp(request);
+            }
+            default -> {
+                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
+            }
+        }
+    }
 
-        return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateKo, ServerInterface.Tables.CENTRO_MONITORAGGIO, -1);
+    private Response executeUpdateQuery(String updateQuery){
+        try(PreparedStatement stat = conn.prepareStatement(updateQuery)){
+            int result = stat.executeUpdate();
+            return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateOk, request.getTable(), result);
+        }catch(SQLException sqle){sqle.printStackTrace();}
+        return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateKo, request.getTable(), null);
+    }
+    public Response executeUpdateAi(Request request){
+        Map<String, String> params = request.getParams();
+        String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
+        String value = params.get(RequestFactory.updateValueKey);
+        String areaId  = params.get(RequestFactory.objectIdKey);
+        String updateQuery = "update area_interesse set %s = '%s' where areaid = '%s'"
+                .formatted(columnToUpdate, value, areaId);
+        return executeUpdateQuery(updateQuery);
+    }
+
+    public Response executeUpdateCm(Request request){
+        Map<String, String> params = request.getParams();
+        String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
+        String value = params.get(RequestFactory.updateValueKey);
+        String centroId = params.get(RequestFactory.objectIdKey);
+        String updateQuery = "";
+        if(columnToUpdate.equals("aree_interesse_ids")){
+            updateQuery = "update centro_monitoraggio set aree_interesse_ids = array_append(aree_interesse_ids, '%s') where centroid = '%s'"
+                    .formatted(value, centroId);
+        }else{
+            updateQuery = "update centro_monitoraggio set %s = '%s' where centroid = '%s'"
+                    .formatted(columnToUpdate, value, centroId);
+        }
+        return executeUpdateQuery(updateQuery);
+    }
+
+    public Response executeUpdateNpc(Request request){
+        Map<String, String> params = request.getParams();
+        String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
+        String value = params.get(RequestFactory.updateValueKey);
+        String notaId = params.get(RequestFactory.objectIdKey);
+        String updateQuery = "update nota_parametro_climatico set %s = '%s' where notaid = '%s'"
+                .formatted(columnToUpdate, value, notaId);
+        return executeUpdateQuery(updateQuery);
+    }
+
+    public Response executeUpdateOp(Request request){
+        Map<String, String> params = request.getParams();
+        String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
+        String value = params.get(RequestFactory.updateValueKey);
+        String codiceFiscale = params.get(RequestFactory.objectIdKey);
+        String updateQuery = "update operatore set %s = '%s' where codice_fiscale = '%s'"
+                .formatted(columnToUpdate, value, codiceFiscale);
+        return executeUpdateQuery(updateQuery);
+    }
+
+    public Response executeUpdatePc(Request request){
+        Map<String, String> params = request.getParams();
+        String parametroId = params.get(RequestFactory.objectIdKey);
+        String columnToUpdate = params.get(RequestFactory.columnToUpdateKey);
+        String value = params.get(RequestFactory.updateValueKey);
+        String updateQuery = "update parametro_climatico set %s = '%s' where parameterid = '%s'"
+                .formatted(columnToUpdate, value, parametroId);
+        return executeUpdateQuery(updateQuery);
+    }
+
+    private Response executeDeleteQuery(String deleteQuery){
+        System.out.println("Executing request: "+deleteQuery);
+        try(PreparedStatement stat = conn.prepareStatement(deleteQuery)){
+            int result = stat.executeUpdate();
+            return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.deleteOk, request.getTable(), result);
+        }catch(SQLException sqle){
+            sqle.printStackTrace();
+        }
+        return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.deleteKo, request.getTable(), null);
+    }
+    public Response executeDeleteAi(Request request){
+        Map<String, String> params = request.getParams();
+        String areaId = params.get(RequestFactory.areaIdKey);
+        String deleteQuery = "delete from area_interesse where areaid = '%s'".formatted(areaId);
+        return executeDeleteQuery(deleteQuery);
+    }
+    public Response executeDeleteCm(Request request){
+        Map<String, String> params = request.getParams();
+        if(params.size() > 1){
+            String areaDaEliminare = params.get(RequestFactory.areaIdKey);
+            String centroId = params.get(RequestFactory.centroIdKey);
+            String query = ("update centro_monitoraggio " +
+                    "set aree_interesse_ids = (select array_remove(aree_interesse_ids, '%s') from centro_monitoraggio where centroid = '%s') " +
+                    "where centroid = '%s'")
+                    .formatted(areaDaEliminare, centroId, centroId);
+            try(PreparedStatement stat = conn.prepareStatement(query)){
+                int result = stat.executeUpdate();
+                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.deleteOk, request.getTable(), result);
+            }catch(SQLException sqle){
+                sqle.printStackTrace();
+                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.deleteKo, request.getTable(), -1);
+            }
+        }else{
+            String centroId = params.get(RequestFactory.centroIdKey);
+            String deleteQuery = "delete from centro_monitoraggio where centroid = '%s'".formatted(centroId);
+            return executeDeleteQuery(deleteQuery);
+        }
+    }
+
+    public Response executeDeletePc(Request request){
+        Map<String, String> params = request.getParams();
+        String parameterId = params.get(RequestFactory.parameterIdKey);
+        String pubDate = params.get(RequestFactory.pubDateKey);
+        String deleteQuery = "delete from parametro_climatico where parameterid = '%s' and pubdate = '%s'".formatted(parameterId, pubDate);
+        return executeDeleteQuery(deleteQuery);
+    }
+
+    public Response executeDeleteNpc(Request request){
+        Map<String, String> params = request.getParams();
+        String notaId = params.get(RequestFactory.notaIdKey);
+        String deleteQuery = "delete from nota_parametro_climatico where notaid = '%s'".formatted(notaId);
+        return executeDeleteQuery(deleteQuery);
+    }
+
+    public Response executeDeleteOp(Request request){
+        Map<String, String> params = request.getParams();
+        String codiceFiscale = params.get(RequestFactory.codFiscOpKey);
+        String deleteQuery = "delete from operatore where codice_fiscale = '%s'".formatted(codiceFiscale);
+        return executeDeleteQuery(deleteQuery);
+    }
+
+    public Response executeDelete(Request request){
+        switch(request.getTable()){
+            case AREA_INTERESSE -> {
+                return executeDeleteAi(request);
+            }
+            case CENTRO_MONITORAGGIO -> {
+                return executeDeleteCm(request);
+            }
+            case PARAM_CLIMATICO -> {
+                return executeDeletePc(request);
+            }
+            case NOTA_PARAM_CLIMATICO -> {
+                return executeDeleteNpc(request);
+            }
+            case OPERATORE -> {
+                return executeDeleteOp(request);
+            }
+            default -> {
+                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.Error, request.getTable(), null);
+            }
+        }
     }
 
     public Response executeLogin(Request request){
@@ -664,7 +820,9 @@ public class CallableQuery implements Callable<Response> {
             ResultSet rSet = stat.executeQuery();
             if(rSet.next()){
                 Operatore operatore = extractOperatore(rSet);
-                return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.loginOk, ServerInterface.Tables.OPERATORE, operatore);
+                Response res = new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.loginOk, ServerInterface.Tables.OPERATORE, operatore);
+                System.out.println(res);
+                return res;
             }
         }catch(SQLException sqle){sqle.printStackTrace();}
 
@@ -682,8 +840,12 @@ public class CallableQuery implements Callable<Response> {
         String email = params.get(RequestFactory.emailOpKey);
         String centroAfferenza = params.get(RequestFactory.centroAfferenzaKey);
 
+        System.out.println("UserId: "+ userId);
+        System.out.println("Email: "+ email);
+
         //create role with the userId
         final String CREATE_USER_ROLE = "create role %s with login password '%s'".formatted(userId, password);
+        System.out.println(CREATE_USER_ROLE);
         try(PreparedStatement createUserRoleStat = conn.prepareStatement(CREATE_USER_ROLE)){
             boolean res = createUserRoleStat.execute();
         }catch(SQLException sqlException){sqlException.printStackTrace();}
@@ -696,7 +858,7 @@ public class CallableQuery implements Callable<Response> {
         }catch(SQLException sqlException){sqlException.printStackTrace();}
 
         String query = "insert into operatore(nome, cognome, codice_fiscale, email, userid, password, centroid) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s')"
-                .formatted(nomeOp, cognomeOp, codFisc, userId, email, password, centroAfferenza);
+                .formatted(nomeOp, cognomeOp, codFisc, email, userId, password, centroAfferenza);
 
         System.err.println(query);
 

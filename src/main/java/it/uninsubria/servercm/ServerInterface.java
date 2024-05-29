@@ -28,8 +28,10 @@ public interface ServerInterface {
         selectObjWithCond("selectObjectWithCond"),
         selectObjJoinWithCond("selectObjectJoinWithCond"),
         executeLogin("executeLogin"),
-        executeUpdateAi("executeUpdateAi"),
+        executeLogout("executeLogout"),
         insert("insert"),
+        executeDelete("executeDelete"),
+        executeUpdate("executeUpdate"),
         requestSignUp("requestSignUp"),
         executeSignUp("executeSignUp");
         public final String label;
@@ -47,8 +49,12 @@ public interface ServerInterface {
         insertKo("insertKo"),
         loginOk("loginOk"),
         loginKo("loginKo"),
+        logoutOk("logoutOk"),
+        logoutKo("logoutKo"),
         updateOk("updateOk"),
         updateKo("updateKo"),
+        deleteOk("deleteOk"),
+        deleteKo("deleteKo"),
         requestSignUpOk("requestSignUpOk"),
         requestSignUpKo("requestSignUpKo"),
         executeSignUpOk("executeSignUpOk"),
@@ -69,7 +75,13 @@ public interface ServerInterface {
     int insertOpParamsLength = 7;
     int insertAiParamsLength = 5;
     int insertNpcParamsLength = 7;
-    int executeUpdateParamsLength = 2;
+    int executeUpdateParamsLength = 3;
+    int executeDeleteParamsLength = 1;
+    int executeDeletePcParamsLength = 2;
+    int executeDeleteAiParamsLength = 1;
+    int executeDeleteCmParamsLength = 1;
+    int executeDeleteNpcParamsLength = 1;
+    int executeDeleteOpParamsLength = 1;
 
     //int insertAiParamsLength ;
 
@@ -77,13 +89,13 @@ public interface ServerInterface {
     String QUIT = "QUIT";
     String NEXT = "NEXT";
     String ID = "ID";
+    String LOGIN = "LOGIN";
+    String LOGOUT = "LOGOUT";
     String UNDEFINED_BEHAVIOUR = "UNDEFINED";
-    String SUCCESSFULL_INSERT = "SUCCESSFUL_INSERT";
-    String UNSUCCESSFULL_INSERT = "UNSUCCESSFUL_INSERT";
     String DUPLICATE_ITEM = "DUPLICATE_ITEM";
 
-    //public void quit() throws IOException;
-    void sendRequest(Request r);
+    public void quit() throws IOException;
+    void sendRequest(Request r) throws IOException;
 
 
 }
