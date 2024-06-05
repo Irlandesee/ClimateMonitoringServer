@@ -59,7 +59,14 @@ public class ServerCm {
                             props.getProperty(ServerCm.propertyDbPassword))){
                 System.out.println("Connessione con il db eseguita con successo");
             }catch(SQLException sqle){System.err.println(sqle.getMessage());}
-        }catch(IOException ioe){System.out.println(ioe.getMessage());}
+        }catch(IOException ioe){
+            System.out.println(ioe.getMessage());
+            String postgresDownload = "https://www.postgresql.org/download/";
+            System.out.println("In base al messaggio di errore, le credenziali potrebbero essere errate nel file di configurazione\n"
+            +"Oppure postgres potrebbe non essere stato avviato/installato\n"
+            +"postgres download: "+postgresDownload+"\n");
+            System.exit(1);
+        }
     }
 
     public static void main(String[] args){
