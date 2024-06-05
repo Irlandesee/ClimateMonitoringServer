@@ -72,33 +72,35 @@ public class ServerCm {
     public static void main(String[] args){
         int i = 0;
         ServerCm serv = new ServerCm();
-        try{
-            while(true){
-                Socket sock = serv.ss.accept();
-                ServerSlave serverSlave = new ServerSlave(sock, i, serv.props);
-                serv.slaves.add(serverSlave);
-                Future<?> future = serv.clientHandler.submit(serverSlave);
-
-                serv.connectionChecker.execute(() -> {
-                    try{
-                        future.get();
-                        System.out.println("Client has disconnected");
-                    }catch(InterruptedException | ExecutionException exception){
-                        exception.printStackTrace();
-                    }
-                });
-
-            }
-        }catch(IOException ioe){ioe.printStackTrace();}
-        finally{
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try{
-                serv.logger.info("Master server closing server socket" + i);
-                serv.ss.close();
-                serv.clientHandler.shutdown();
+                while(true){
+                    Socket sock = serv.ss.accept();
+                    ServerSlave serverSlave = new ServerSlave(sock, i, serv.props);
+                    serv.slaves.add(serverSlave);
+                    Future<?> future = serv.clientHandler.submit(serverSlave);
+
+                    serv.connectionChecker.execute(() -> {
+                        try{
+                            future.get();
+                            System.out.println("Client has disconnected");
+                        }catch(InterruptedException | ExecutionException exception){
+                            System.err.println(exception.getMessage());
+                        }
+                    });
+                }
             }catch(IOException ioe){
-                ioe.printStackTrace();
+                System.err.println(ioe.getMessage());
+            }finally{
+                try{
+                    serv.logger.info("Master server closing server socket" + i);
+                    serv.ss.close();
+                    serv.clientHandler.shutdown();
+                }catch(IOException ioe){
+                    System.err.println(ioe.getMessage());
+                }
             }
-        }
+        }));
 
     }
 
