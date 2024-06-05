@@ -29,7 +29,7 @@ public class CallableQuery implements Callable<Response> {
         clientId = request.getClientId();
         responseId = IDGenerator.generateID();
         try{
-            conn = DriverManager.getConnection(ServerCm.dbUrl, props);
+            conn = DriverManager.getConnection(ServerCm.dbUrl, props.getProperty("db.username"), props.getProperty("db.password"));
         }catch(SQLException sqle){sqle.printStackTrace();}
     }
     /**
