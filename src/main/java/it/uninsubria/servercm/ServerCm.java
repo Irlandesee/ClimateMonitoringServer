@@ -37,9 +37,11 @@ public class ServerCm {
         initDb();
         try{
             ss = new ServerSocket(PORT);
-            System.err.printf("%s started on port: %d\n", this.name, this.PORT);
-            System.err.printf("%s dbUrl: %s\n", this.name, props.getProperty(propertyDbName));
-        }catch(IOException ioe){ioe.printStackTrace();}
+            System.out.printf("%s lanciato sulla porta: %d\n", this.name, this.PORT);
+            System.out.printf("%s dbUrl: %s\n", this.name, props.getProperty(propertyDbUrl));
+        }catch(IOException ioe){
+            System.err.println(ioe.getMessage());
+        }
 
         clientHandler = Executors.newFixedThreadPool(MAX_NUMBER_OF_THREADS);
         connectionChecker = Executors.newFixedThreadPool(MAX_NUMBER_OF_THREADS);
@@ -66,7 +68,7 @@ public class ServerCm {
                 System.out.println("Connessione con il db di default eseguita con successo");
                 System.out.println("Cerco il db per ClimateMonitoring...");
                 String dbName = props.getProperty(ServerCm.propertyDbName);
-                String s = "select datname from pg_database where datname like '%s;'".formatted(dbName);
+                String s = "select datname from pg_database where datname like '%s';".formatted(dbName);
                 PreparedStatement checkDbQuery = masterConn.prepareStatement(s);
                 ResultSet rSet = checkDbQuery.executeQuery();
                 if(rSet.next()){
@@ -91,21 +93,15 @@ public class ServerCm {
                             System.out.println(result+ ": Connessione con climate monitoring avvenuta con successo");
                             System.out.println("Creazione del db avvenuta... tentativo di popolamento di tabelle e ruoli in corso...");
                             executeBatchSqlStatements(cmConn, "init.sql", 10);
+                            System.out.println("Popolamento del db completato, verifica in corso...");
 
-                            cmConn.close();
+                            //executeBatchSqlStatements(cmConn, "city.sql", 1000);
                         }catch(SQLException sqle2){
                             System.err.println(sqle2.getMessage());
                             System.out.println("Tentativo di connessione con il db" + dbName + " fallito, verificarne la presenza con psql");
                             System.exit(1);
                         }
 
-                        /**
-                        executeBatchSqlStatements(onn, "city.sql", 1000);
-                        System.out.println("Popolamento del db completato, verifica in corso...");
-                        }catch(SQLException sqle2){
-                            System.exit(1);
-                        }
-                         **/
                     }else{
                         System.out.println("Procedere manualmente con la creazione del database e poi riavviare il programma");
                         System.exit(0);
@@ -162,7 +158,7 @@ public class ServerCm {
     private String getMatch(String s, String regex){
         Pattern patter = Pattern.compile(regex);
         Matcher matcher = patter.matcher(s);
-        return matcher.find() ? matcher.group() : "";
+        return matcher.find() ? matcher.group(1) : "";
     }
 
     private void executeBatchSqlStatements(Connection conn, String fileName, int batchSize){
@@ -173,7 +169,7 @@ public class ServerCm {
             for(String s : sqlStatements){
                 if(s.contains("create table")){
                     String regex = "([^\\s]+)\\(";
-                    System.err.println("Creando tabella: "+ getMatch(s,regex));
+                    System.err.println("Creando tabella: "+ getMatch(s, regex));
                 }else if(s.contains("create role")){
                     String regex = "create role\\s+(\\S+)\\s+with";
                     System.err.println("Creando ruolo: "+getMatch(s, regex));
@@ -188,8 +184,6 @@ public class ServerCm {
                 }
             }
             if(count % batchSize != 0) stat.executeBatch();
-
-            conn.commit();
         }catch(SQLException sqle){
             System.err.println(sqle.getMessage());
         }
