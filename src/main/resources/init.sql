@@ -29,8 +29,8 @@ create table if not exists city(
 create table if not exists nota_parametro_climatico(
                                                        notaid varchar(100) primary key,
                                                        nota_vento varchar(256),
-                                                       nota_umiditia varchar(256),
-                                                       nota_presisone varchar(256),
+                                                       nota_umidita varchar(256),
+                                                       nota_pressione varchar(256),
                                                        nota_temperatura varchar(256),
                                                        nota_precipitazioni varchar(256),
                                                        nota_alt_ghiacciai varchar(256),
@@ -41,7 +41,7 @@ create table if not exists parametro_climatico(
                                                   centroid varchar(100) not null references centro_monitoraggio(centroid),
                                                   areaid varchar(100) not null references area_interesse(areaid),
                                                   pubdate date not null,
-                                                  notaid varchar(100) not null references nota_parametro_climatico(notaid),
+                                                  notaid varchar(100) references nota_parametro_climatico(notaid),
                                                   valore_vento smallint not null,
                                                   valore_umidita smallint not null,
                                                   valore_pressione smallint not null,
@@ -61,10 +61,11 @@ create table if not exists operatore(
                                         primary key(userid, codice_fiscale)
 );
 --roles
+drop role if exists mattialun;
 drop role if exists server_slave;
 create role server_slave with createrole login password 'serverSlave';
-grant select on public.city, public.area_interesse, public.centro_monitoraggio, public.nota_parametro_climatico, public.parametro_climatico to server_slave;
-grant select, insert, update, delete on public.operatore_autorizzati to server_slave;
+grant select on public.city, public.area_interesse, public.centro_monitoraggio, public.nota_parametro_climatico, public.parametro_climatico, public.operatore_autorizzati to server_slave;
+grant select, insert on public.operatore to server_slave;
 
 drop role if exists operatori;
 create role operatori with createrole;

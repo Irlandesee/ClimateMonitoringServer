@@ -29,8 +29,8 @@ public class CallableQuery implements Callable<Response> {
         clientId = request.getClientId();
         responseId = IDGenerator.generateID();
         try{
-            conn = DriverManager.getConnection(ServerCm.dbUrl, props.getProperty("db.username"), props.getProperty("db.password"));
-        }catch(SQLException sqle){sqle.printStackTrace();}
+            conn = DriverManager.getConnection(props.getProperty("db.url"), props.getProperty("db.username"), props.getProperty("db.password"));
+        }catch(SQLException sqle){System.out.println(sqle.getMessage());}
     }
     /**
      * Implementazione del metodo call della classe Callable
@@ -757,6 +757,7 @@ public class CallableQuery implements Callable<Response> {
     private Response executeUpdateQuery(String updateQuery){
         try(PreparedStatement stat = conn.prepareStatement(updateQuery)){
             int result = stat.executeUpdate();
+            System.out.println("Executing update: " + updateQuery);
             return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateOk, request.getTable(), result);
         }catch(SQLException sqle){sqle.printStackTrace();}
         return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.updateKo, request.getTable(), null);
@@ -991,6 +992,7 @@ public class CallableQuery implements Callable<Response> {
 
     /**
      * Inserimento, creazione e grant di permessi per un nuovo operatore
+     * Elimina l'operatore autorizzato dalla tabella operatori_autorizzati
      * @param request
      * @return
      */
@@ -1023,6 +1025,10 @@ public class CallableQuery implements Callable<Response> {
 
         String query = "insert into operatore(nome, cognome, codice_fiscale, email, userid, password, centroid) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s')"
                 .formatted(nomeOp, cognomeOp, codFisc, email, userId, password, centroAfferenza);
+        String deleteAuthOp = "delete from operatore_autorizzati where codice_fiscale = '%s' and email = '%s'".formatted(codFisc, email);
+        try(PreparedStatement stat = conn.prepareStatement(deleteAuthOp)){
+            stat.executeUpdate();
+        }catch(SQLException sqlException){System.out.println(sqlException.getMessage());}
 
         try(PreparedStatement stat = conn.prepareStatement(query)){
             int res = stat.executeUpdate();

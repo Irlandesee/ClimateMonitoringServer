@@ -93,11 +93,17 @@ public class ServerCm {
                             System.out.println(result+ ": Connessione con climate monitoring avvenuta con successo");
                             System.out.println("Creazione del db avvenuta... tentativo di popolamento di tabelle e ruoli in corso...");
                             String dropStat = "do $$begin if exists (select from pg_roles where rolname = 'server_slave') then execute 'drop owned by server_slave'; end if; end$$";
+                            String dropOwnedOp = "do $$begin if exists (select from pg_roles where rolname = 'operatori') then execute 'drop owned by operatori'; end if; end$$";
+
                             CallableStatement cStat = cmConn.prepareCall(dropStat);
                             cStat.executeUpdate();
+                            CallableStatement opStat = cmConn.prepareCall(dropOwnedOp);
+                            opStat.executeUpdate();
+
 
                             executeBatchSqlStatements(cmConn, "init.sql", 10);
                             System.out.println("Creazione tabelle e ruoli completata, popolamento della tabella city in corso...");
+                            executeBatchSqlStatements(cmConn, "aree_interesse.sql", 100);
                             executeBatchSqlStatements(cmConn, "city.sql", 1000);
                             System.out.println("Popolamento tabella city completato");
                         }catch(SQLException sqle2){
@@ -175,7 +181,7 @@ public class ServerCm {
                     String regex = "([^\\s]+)\\(";
                     System.err.println("Creando tabella: "+ getMatch(s, regex));
                 }else if(s.contains("create role")){
-                    String regex = "create role\\s+(\\S+)\\s+with";
+                    String regex = "create role\\s+(\\S+)\\s+ login";
                     System.err.println("Creando ruolo: "+getMatch(s, regex));
                 }
 

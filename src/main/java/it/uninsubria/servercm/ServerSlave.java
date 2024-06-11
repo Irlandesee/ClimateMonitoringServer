@@ -17,24 +17,22 @@ import java.util.concurrent.Future;
 
 public class ServerSlave implements Runnable{
 
-    private int slaveId;
-    private Socket sock;
+    private final int slaveId;
+    private final Socket sock;
     private ObjectInputStream inStream;
     private ObjectOutputStream outStream;
-    private Properties props;
+    private final Properties props;
     private final ExecutorService executorService;
-    private final int MAX_NUMBER_OF_THREADS = 5;
     private final String defaultSlaveUser;
     private final String defaultSlavePassword;
     public ServerSlave(Socket sock, int slaveId, Properties props){
-        //executorService = Executors.newFixedThreadPool(MAX_NUMBER_OF_THREADS);
         executorService = Executors.newSingleThreadExecutor();
         this.sock = sock;
         this.slaveId = slaveId;
 
         this.props = props;
-        defaultSlaveUser = this.props.getProperty("user");
-        defaultSlavePassword = this.props.getProperty("password");
+        defaultSlaveUser = this.props.getProperty("db.username");
+        defaultSlavePassword = this.props.getProperty("db.password");
     }
 
     /**
@@ -62,7 +60,7 @@ public class ServerSlave implements Runnable{
                             Response response = futureResponse.get();
                             outStream.writeObject(response);
                         }catch(InterruptedException | ExecutionException e){
-                            e.printStackTrace();
+                            System.out.println(e.getMessage());
                         }
                     }
                     case ServerInterface.TEST -> {
@@ -81,21 +79,22 @@ public class ServerSlave implements Runnable{
                             if(loginResponse.getResponseType() == ServerInterface.ResponseType.loginOk){
                                 System.out.println("Login ok... setting slave properties to match the user's properties");
                                 Map<String, String> params = loginRequest.getParams();
-                                props.setProperty("user", params.get(RequestFactory.userKey));
-                                props.setProperty("password", params.get(RequestFactory.passwordKey));
+                                props.setProperty("db.username", params.get(RequestFactory.userKey));
+                                props.setProperty("db.password", params.get(RequestFactory.passwordKey));
                                 System.out.println(props);
                             }
                             outStream.writeObject(loginResponse);
                         }catch(InterruptedException | ExecutionException e){
-                            e.printStackTrace();
+                            System.out.println(e.getMessage());
                         }
                     }
                     case ServerInterface.LOGOUT -> {
                         Request logoutRequest = (Request) inStream.readObject();
                         if(logoutRequest.getRequestType() == ServerInterface.RequestType.executeLogout){
                             System.out.printf("Client %s has logged out, setting slave properties to default\n", clientId);
-                            this.props.setProperty("user", defaultSlaveUser);
-                            this.props.setProperty("password", defaultSlavePassword);
+                            this.props.setProperty("db.username", defaultSlaveUser);
+                            this.props.setProperty("db.password", defaultSlavePassword);
+                            System.out.println(props);
                             Response logoutResponse = new Response(
                                     clientId,
                                     logoutRequest.getRequestId(),
@@ -119,16 +118,16 @@ public class ServerSlave implements Runnable{
         }catch(IOException ioe){
             System.out.printf("Client %s has disconnected, Slave %d terminating\n", clientId, slaveId);
             //runCondition = false;
-            ioe.printStackTrace();
+            System.out.println(ioe.getMessage());
         }catch(ClassNotFoundException cnfe){
-            cnfe.printStackTrace();
+            System.out.println(cnfe.getMessage());
         }finally{
             try{
                 outStream.close();
                 inStream.close();
                 sock.close();
             }catch(IOException ioe){
-                ioe.printStackTrace();
+                System.out.println(ioe.getMessage());
             }
         }
         executorService.shutdown();
