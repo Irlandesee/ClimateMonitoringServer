@@ -1,3 +1,6 @@
+insert into operatore_autorizzati(codice_fiscale, email) values('LNRMTM97L29F205L', 'mmlunardi@studenti.uninsubria.it');
+insert into operatore_autorizzati(codice_fiscale, email) values('UHUT3VQHGPHFE2I3', 'prova1234@gmail.com');
+
 INSERT INTO public.area_interesse (areaid, denominazione, stato, latitudine, longitudine) VALUES ('609a61ef1a6ad0a05a9d161cc3d0e27f', 'Tlaltepango', 'Mexico', 20.14531, -97.87723);
 INSERT INTO public.area_interesse (areaid, denominazione, stato, latitudine, longitudine) VALUES ('1adab304b7d10fb34da22247964878b5', 'Balakovo', 'Russian Federation', 52.02782, 47.8007);
 INSERT INTO public.area_interesse (areaid, denominazione, stato, latitudine, longitudine) VALUES ('d8c13b1d794bbf094982e26221f38e16', 'Gujar Khan', 'Pakistan', 33.25411, 73.30433);

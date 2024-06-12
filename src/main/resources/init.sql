@@ -70,6 +70,3 @@ grant select, insert on public.operatore to server_slave;
 drop role if exists operatori;
 create role operatori with createrole;
 grant select, update, insert, delete on all tables in schema public to operatori;
-
-insert into operatore_autorizzati(codice_fiscale, email) values('LNRMTM97L29F205L', 'mmlunardi@studenti.uninsubria.it');
-insert into operatore_autorizzati(codice_fiscale, email) values('UHUT3VQHGPHFE2I3', 'prova1234@gmail.com');
