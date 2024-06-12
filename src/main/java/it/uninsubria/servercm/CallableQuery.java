@@ -11,8 +11,7 @@ import it.uninsubria.datamodel.parametroClimatico.ParametroClimatico;
 import it.uninsubria.request.Request;
 import it.uninsubria.response.Response;
 import it.uninsubria.util.IDGenerator;
-import javafx.util.Pair;
-
+import org.javatuples.Pair;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -465,31 +464,31 @@ public class CallableQuery implements Callable<Response> {
         switch(r.getTable()){
             case CITY -> {
                 Pair<ServerInterface.ResponseType, List<City>> res = selectAllCityCond(params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), r.getTable(), res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), r.getTable(), res.getValue1());
             }
             case CENTRO_MONITORAGGIO -> {
                 Pair<ServerInterface.ResponseType, List<CentroMonitoraggio>> res = selectAllCmCond(params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), r.getTable(), res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), r.getTable(), res.getValue1());
             }
             case AREA_INTERESSE -> {
                 Pair<ServerInterface.ResponseType, List<AreaInteresse>> res = selectAllAiCond(params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), r.getTable(), res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), r.getTable(), res.getValue1());
             }
             case PARAM_CLIMATICO -> {
                 Pair<ServerInterface.ResponseType, List<ParametroClimatico>> res = selectAllPcCond(params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), r.getTable(), res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), r.getTable(), res.getValue1());
             }
             case NOTA_PARAM_CLIMATICO -> {
                 Pair<ServerInterface.ResponseType, List<NotaParametro>> res = selectAllNotaCond(params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), r.getTable(), res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), r.getTable(), res.getValue1());
             }
             case OPERATORE -> {
                 Pair<ServerInterface.ResponseType, List<Operatore>> res = selectAllOpCond(params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), r.getTable(), res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), r.getTable(), res.getValue1());
             }
             case OP_AUTORIZZATO -> {
                 Pair<ServerInterface.ResponseType, List<OperatoreAutorizzato>> res = selectAllAuthOpCond(params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), r.getTable(), res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), r.getTable(), res.getValue1());
             }
             default -> {
                 return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.List, r.getTable(), null);
@@ -550,31 +549,31 @@ public class CallableQuery implements Callable<Response> {
         switch(r.getTable()){
             case CITY -> {
                 Pair<ServerInterface.ResponseType, String> res = selectObjCityCond(params.get(RequestFactory.objectKey), params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), ServerInterface.Tables.CITY, res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), ServerInterface.Tables.CITY, res.getValue1());
             }
             case CENTRO_MONITORAGGIO -> {
                 Pair<ServerInterface.ResponseType, String> res = selectObjCmCond(params.get(RequestFactory.objectKey), params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), ServerInterface.Tables.CENTRO_MONITORAGGIO, res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), ServerInterface.Tables.CENTRO_MONITORAGGIO, res.getValue1());
             }
             case AREA_INTERESSE -> {
                 Pair<ServerInterface.ResponseType, String> res = selectObjAiCond(params.get(RequestFactory.objectKey), params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), ServerInterface.Tables.AREA_INTERESSE, res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), ServerInterface.Tables.AREA_INTERESSE, res.getValue1());
             }
             case PARAM_CLIMATICO -> {
                 Pair<ServerInterface.ResponseType, String> res = selectObjPcCond(params.get(RequestFactory.objectKey), params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), ServerInterface.Tables.PARAM_CLIMATICO, res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), ServerInterface.Tables.PARAM_CLIMATICO, res.getValue1());
             }
             case NOTA_PARAM_CLIMATICO -> {
                 Pair<ServerInterface.ResponseType, String> res = selectObjNpcCond(params.get(RequestFactory.objectKey), params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), ServerInterface.Tables.NOTA_PARAM_CLIMATICO, res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), ServerInterface.Tables.NOTA_PARAM_CLIMATICO, res.getValue1());
             }
             case OPERATORE -> {
                 Pair<ServerInterface.ResponseType, String> res = selectObjOpCond(params.get(RequestFactory.objectKey), params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), ServerInterface.Tables.OPERATORE, res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), ServerInterface.Tables.OPERATORE, res.getValue1());
             }
             case OP_AUTORIZZATO -> {
                 Pair<ServerInterface.ResponseType, String> res = selectObjAuthOpCond(params.get(RequestFactory.objectKey), params.get(RequestFactory.condKey), params.get(RequestFactory.fieldKey));
-                return new Response(clientId, callableQueryId, responseId, res.getKey(), ServerInterface.Tables.OP_AUTORIZZATO, res.getValue());
+                return new Response(clientId, callableQueryId, responseId, res.getValue0(), ServerInterface.Tables.OP_AUTORIZZATO, res.getValue1());
             }
             default -> {
                 return new Response(clientId, callableQueryId, responseId, ServerInterface.ResponseType.NoSuchElement, r.getTable(), null);
