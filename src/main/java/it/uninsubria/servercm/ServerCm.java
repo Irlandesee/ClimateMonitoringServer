@@ -33,8 +33,10 @@ public class ServerCm {
     private final ExecutorService clientHandler;
     private final ExecutorService connectionChecker;
     private final int MAX_NUMBER_OF_THREADS = 10;
+    private final Scanner in;
 
     public ServerCm(){
+        in = new Scanner(System.in);
         initDb();
         try{
             ss = new ServerSocket(PORT);
@@ -102,7 +104,8 @@ public class ServerCm {
                             opStat.executeUpdate();
                             executeBatchSqlStatements(cmConn, "init.sql", 10);
                             System.out.println("Vuoi procedere con il popolamento demo?");
-                            if(readUserChoice().equals("y")){
+                            userChoice = readUserChoice();
+                            if(userChoice.equals("y")){
                                 executeBatchSqlStatements(cmConn, "tables_demo.sql", 100);
                                 executeBatchSqlStatements(cmConn, "city.sql", 1000);
                                 System.out.println("Popolamento tabelle demo completato.");
@@ -136,9 +139,7 @@ public class ServerCm {
 
     private String readUserChoice(){
         System.out.println("y/n?");
-        Scanner in = new Scanner(System.in);
         String choice = in.next();
-        in.close();
         if(choice.equals("y") || choice.equals("n")) return choice;
         return readUserChoice();
     }
@@ -186,7 +187,7 @@ public class ServerCm {
                     String regex = "([^\\s]+)\\(";
                     System.err.println("Creando tabella: "+ getMatch(s, regex));
                 }else if(s.contains("create role")){
-                    String regex = "create role\\s+(\\S+)\\s+ login";
+                    String regex = "create role\\s+(\\S+)\\s+ with";
                     System.err.println("Creando ruolo: "+getMatch(s, regex));
                 }
 
@@ -207,35 +208,35 @@ public class ServerCm {
     public static void main(String[] args){
         int i = 0;
         ServerCm serv = new ServerCm();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try{
-                while(true){
-                    Socket sock = serv.ss.accept();
-                    ServerSlave serverSlave = new ServerSlave(sock, i, serv.props);
-                    serv.slaves.add(serverSlave);
-                    Future<?> future = serv.clientHandler.submit(serverSlave);
 
-                    serv.connectionChecker.execute(() -> {
-                        try{
-                            future.get();
-                            System.out.println("Client has disconnected");
-                        }catch(InterruptedException | ExecutionException exception){
-                            System.err.println(exception.getMessage());
-                        }
-                    });
-                }
-            }catch(IOException ioe){
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Master server shutting down...");
+            serv.clientHandler.shutdown(); //close executor service
+            serv.in.close(); //closes scanner
+            try{
+                serv.ss.close();
+            } catch(IOException ioe){
                 System.err.println(ioe.getMessage());
-            }finally{
-                try{
-                    serv.logger.info("Master server closing server socket" + i);
-                    serv.ss.close();
-                    serv.clientHandler.shutdown();
-                }catch(IOException ioe){
-                    System.err.println(ioe.getMessage());
-                }
+                System.err.println(Arrays.toString(ioe.getStackTrace()));
             }
         }));
+
+        try{
+            while(true){
+                Socket sock = serv.ss.accept();
+                ServerSlave serverSlave = new ServerSlave(sock, i, serv.props);
+                serv.slaves.add(serverSlave);
+                Future<?> future = serv.clientHandler.submit(serverSlave);
+
+                serv.connectionChecker.execute(() -> {
+                    try{
+                        future.get();
+                    }catch(InterruptedException | ExecutionException exception){System.err.println(exception.getMessage());}
+                });
+            }
+        }catch(IOException e){
+            System.err.println(e.getMessage());
+        }
 
     }
 
