@@ -71,16 +71,6 @@ public class Operatore implements Serializable {
     public void setCentroID(String centroID){this.centroID = centroID;}
 
     @Override
-    public int hashCode() {
-        return -1;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return false;
-    }
-
-    @Override
     public String toString(){
         return this.nome + "," + this.cognome + "," + this.userID + "," + this.password + "," + this.email+ "," + this.codFiscale + "," + this.centroID;
     }
