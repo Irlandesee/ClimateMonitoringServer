@@ -137,11 +137,11 @@ public class ServerCm {
                         userChoice = readUserChoice();
                         if(userChoice.equals("y")){
                             executeBatchSqlStatements(cmConn, "tables_demo.sql", 100);
-                            executeBatchSqlStatements(cmConn, "city.sql", 1000);
+                            executeBatchSqlStatements(cmConn, "cities.sql", 1000);
                             System.out.println("Popolamento tabelle demo completato.");
                         }else{
                             System.out.println("Popolamento della tabella city in corso...");
-                            executeBatchSqlStatements(cmConn, "city.sql", 1000);
+                            executeBatchSqlStatements(cmConn, "cities.sql", 1000);
                             System.out.println("Popolamento della tabella city completato.");
                         }
                     }catch(SQLException sqle2){
