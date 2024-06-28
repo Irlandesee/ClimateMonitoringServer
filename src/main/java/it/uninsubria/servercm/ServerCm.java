@@ -136,8 +136,8 @@ public class ServerCm {
                         System.out.println("Vuoi procedere con il popolamento demo?");
                         userChoice = readUserChoice();
                         if(userChoice.equals("y")){
-                            executeBatchSqlStatements(cmConn, "tables_demo.sql", 100);
                             executeBatchSqlStatements(cmConn, "cities.sql", 1000);
+                            executeBatchSqlStatements(cmConn, "tables_demo.sql", 100);
                             System.out.println("Popolamento tabelle demo completato.");
                         }else{
                             System.out.println("Popolamento della tabella city in corso...");

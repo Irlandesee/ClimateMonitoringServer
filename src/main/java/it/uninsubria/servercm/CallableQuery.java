@@ -357,7 +357,13 @@ public class CallableQuery implements Callable<Response> {
     }
 
     private Pair<ServerInterface.ResponseType, List<City>> selectAllCityCond(String fieldCond, String cond){
-        String query = "select * from city where " + fieldCond + " = ?";
+        String query = "";
+        if(fieldCond.equals("country")){
+            query = "select * from city where %s ~ '%s' || lower(%s) ~ '%s'".formatted(fieldCond, cond, fieldCond, cond);
+        }else{
+
+            query = "select * from city where %s = '%s'".formatted(fieldCond, cond);
+        }
         LinkedList<City> cities = new LinkedList<City>();
         try(ResultSet rSet = prepAndExecuteStatement(query, cond)){
             while(rSet.next()){
@@ -370,7 +376,13 @@ public class CallableQuery implements Callable<Response> {
     }
 
     private Pair<ServerInterface.ResponseType, List<CentroMonitoraggio>> selectAllCmCond(String fieldCond, String cond){
-        String query = "select * from centro_monitoraggio where " + fieldCond + " = ?";
+        String query = "";
+        if(fieldCond.equals("country")){
+            query = "select * from centro_monitoraggio where %s ~ '%s' || lower(%s) ~ '%s'".formatted(fieldCond, cond, fieldCond, cond);
+        }else{
+
+            query = "select * from centro_monitoraggio where %s = '%s'".formatted(fieldCond, cond);
+        }
         List<CentroMonitoraggio> cms = new LinkedList<CentroMonitoraggio>();
         try(ResultSet rSet = prepAndExecuteStatement(query, cond)){
             while(rSet.next()){
@@ -383,7 +395,13 @@ public class CallableQuery implements Callable<Response> {
     }
 
     private Pair<ServerInterface.ResponseType, List<AreaInteresse>> selectAllAiCond(String fieldCond, String cond){
-        String query = "select * from area_interesse where %s = '%s'".formatted(fieldCond, cond);
+        String query = "";
+        if(fieldCond.equals("stato")){
+            query = "select * from area_interesse where %s ~ '%s' || lower(%s) ~ '%s'".formatted(fieldCond, cond, fieldCond, cond);
+        }else{
+
+            query = "select * from area_interesse where %s = '%s'".formatted(fieldCond, cond);
+        }
         System.out.println(query);
         List<AreaInteresse> areeInteresse = new LinkedList<AreaInteresse>();
         try(PreparedStatement stat = conn.prepareStatement(query)){
